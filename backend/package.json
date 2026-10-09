@@ -1,0 +1,32 @@
+{
+  "name": "opobrain-backend",
+  "version": "1.0.0",
+  "description": "Backend API para OpoBrAIn - Preparación Oposiciones C1 Estado",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "extract": "node scripts/extractor.js",
+    "batch-extract": "node scripts/batch_extractor.js"
+  },
+  "keywords": [
+    "oposiciones",
+    "c1",
+    "test",
+    "express",
+    "neon",
+    "postgresql"
+  ],
+  "author": "OpoBrAIn Team",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "pdf-parse": "^2.4.5",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
