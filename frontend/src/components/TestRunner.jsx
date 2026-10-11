@@ -7,7 +7,7 @@ import {
   Home, 
   Award, 
   Lightbulb,
-  Sparkles
+  X
 } from 'lucide-react';
 import { useTestStore } from '../store/useTestStore';
 
@@ -40,21 +40,30 @@ export const TestRunner = () => {
     const esAprobado = parseFloat(notaSobreDiez) >= 5.0;
 
     return (
-      <div className="relative z-10 max-w-xl mx-auto px-4 py-6 sm:py-12">
+      <div className="relative z-10 max-w-lg mx-auto px-4 py-4 sm:py-8">
         <motion.div 
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="warm-cream-card rounded-3xl p-8 sm:p-10 text-[#443930] text-center space-y-6 shadow-2xl"
+          className="warm-cream-card rounded-3xl p-6 sm:p-8 text-[#443930] text-center space-y-5 shadow-2xl relative"
         >
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-[#9a897b] text-white flex items-center justify-center shadow-md">
-            <Award className="w-8 h-8" />
+          {/* Botón X de salida en pantalla de resultados */}
+          <button
+            onClick={resetTest}
+            className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-[#ded3c7] text-[#8a796b] hover:text-[#3e342b] transition cursor-pointer"
+            title="Volver al inicio"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-[#9a897b] text-white flex items-center justify-center shadow-md">
+            <Award className="w-7 h-7" />
           </div>
 
           <div className="space-y-1">
-            <span className="text-[11px] font-bold tracking-widest uppercase text-[#8a796b]">
+            <span className="text-[10px] font-bold tracking-widest uppercase text-[#8a796b]">
               Baremo Oficial C1 (INAP)
             </span>
-            <h2 className="text-3xl font-light text-[#372d25]">
+            <h2 className="text-2xl sm:text-3xl font-light text-[#372d25]">
               {esAprobado ? '¡Test Superado!' : 'Sesión Finalizada'}
             </h2>
             <p className="text-xs text-[#736457]">
@@ -63,24 +72,24 @@ export const TestRunner = () => {
           </div>
 
           {/* Baremo INAP C1 */}
-          <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-[#eae2d7] border border-[#d8ccc0]">
+          <div className="grid grid-cols-3 gap-2.5 p-3.5 rounded-2xl bg-[#eae2d7] border border-[#d8ccc0]">
             <div>
-              <div className="text-2xl font-bold text-[#446b52]">{aciertos}</div>
-              <div className="text-[11px] text-[#736457]">Aciertos (+1.0)</div>
+              <div className="text-xl sm:text-2xl font-bold text-[#446b52]">{aciertos}</div>
+              <div className="text-[10px] sm:text-[11px] text-[#736457]">Aciertos (+1.0)</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-[#9e5d52]">{fallos}</div>
-              <div className="text-[11px] text-[#736457]">Fallos (-0.33)</div>
+              <div className="text-xl sm:text-2xl font-bold text-[#9e5d52]">{fallos}</div>
+              <div className="text-[10px] sm:text-[11px] text-[#736457]">Fallos (-0.33)</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-[#3e342b]">{notaSobreDiez} <span className="text-xs font-normal">/10</span></div>
-              <div className="text-[11px] text-[#736457]">Nota Final</div>
+              <div className="text-xl sm:text-2xl font-bold text-[#3e342b]">{notaSobreDiez} <span className="text-xs font-normal">/10</span></div>
+              <div className="text-[10px] sm:text-[11px] text-[#736457]">Nota Final</div>
             </div>
           </div>
 
           <button
             onClick={resetTest}
-            className="w-full py-3.5 px-6 bg-[#3e342b] hover:bg-[#2c241d] text-white font-semibold rounded-2xl text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 transition shadow-md"
+            className="w-full py-3 px-6 bg-[#3e342b] hover:bg-[#2c241d] text-white font-semibold rounded-2xl text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 transition shadow-md cursor-pointer"
           >
             <Home className="w-4 h-4" /> Volver al Inicio
           </button>
@@ -91,10 +100,14 @@ export const TestRunner = () => {
 
   if (!currentQuestion) {
     return (
-      <div className="relative z-10 max-w-md mx-auto px-4 py-20 text-center space-y-4">
+      <div className="relative z-10 max-w-md mx-auto px-4 py-16 text-center space-y-4">
         <p className="text-white/80 text-sm">No hay preguntas para esta selección.</p>
-        <button onClick={resetTest} className="pill-outline-btn rounded-full px-6 py-2 text-xs">
-          Volver
+        <button 
+          onClick={resetTest} 
+          className="pill-outline-btn rounded-full px-6 py-2 text-xs cursor-pointer inline-flex items-center gap-1.5"
+        >
+          <X className="w-3.5 h-3.5" />
+          <span>Volver al Dashboard</span>
         </button>
       </div>
     );
@@ -109,75 +122,103 @@ export const TestRunner = () => {
 
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
 
+  // Limpiar enunciado para que no repita el prefijo si ya viene en el tema
+  const enunciadoTexto = (currentQuestion.enunciado || '')
+    .replace(/^\[.*?\]\s*/, '')
+    .trim();
+
+  // Etiqueta concisa de tema
+  const temaBadgeTexto = currentQuestion.tema_numero 
+    ? `Tema ${currentQuestion.tema_numero}`
+    : (currentQuestion.tema_nombre ? (currentQuestion.tema_nombre.match(/tema\s*\d+/i)?.[0] || 'Tema') : null);
+
   return (
-    <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    <div className="relative z-10 max-w-2xl mx-auto w-full px-3 sm:px-4 py-1 sm:py-2 space-y-2.5">
       
-      {/* Barra superior con navegación y progreso */}
-      <div className="space-y-3">
+      {/* Barra superior compacta con título, progreso y botón X visible */}
+      <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs text-white/90">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={resetTest}
-              className="p-1.5 hover:bg-white/10 rounded-lg text-white/80 hover:text-white transition"
-              title="Volver"
-            >
-              <Home className="w-4 h-4" />
-            </button>
-            <span className="font-medium truncate max-w-xs sm:max-w-md">
+          <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
+            <span className="font-medium truncate text-xs sm:text-sm text-white/90">
               {testMeta?.titulo || 'Test Activo'}
             </span>
           </div>
-          <span className="font-semibold tracking-wider">
-            {currentIndex + 1} / {totalQuestions}
-          </span>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Contador de preguntas */}
+            <span className="font-semibold text-[11px] tracking-wider bg-white/10 px-2.5 py-0.5 rounded-full border border-white/20">
+              {currentIndex + 1} / {totalQuestions}
+            </span>
+
+            {/* BOTÓN X PARA SALIRSE DEL TEST CUANDO QUIERA */}
+            <button
+              onClick={resetTest}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-white text-xs font-semibold transition border border-white/30 cursor-pointer shadow-xs"
+              title="Salir del test y volver al Dashboard"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Salir</span>
+            </button>
+          </div>
         </div>
 
-        {/* Barra de progreso con resplandor suave */}
-        <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
+        {/* Barra de progreso */}
+        <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
           <motion.div
-            className="h-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]"
+            className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2 }}
           />
         </div>
       </div>
 
-      {/* Tarjeta de la Pregunta Actual (Estilo Cream Card) */}
+      {/* Tarjeta de la Pregunta Actual (Estilo Cream Card ajustado para entrar en 1 pantalla) */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentQuestion.id}
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -14 }}
-          transition={{ duration: 0.25 }}
-          className="warm-cream-card rounded-3xl p-6 sm:p-9 text-[#443930] space-y-6 shadow-2xl"
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.18 }}
+          className="warm-cream-card rounded-2xl sm:rounded-3xl p-4 sm:p-5 text-[#443930] space-y-3 sm:space-y-3.5 shadow-xl"
         >
-          {/* Tags de Tema o Año */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {(currentQuestion.tema_numero || currentQuestion.tema_nombre) && (
-              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase border border-[#d8ccc0]">
-                {currentQuestion.tema_numero ? `Tema ${currentQuestion.tema_numero}` : currentQuestion.tema_nombre}
-              </span>
-            )}
-            {currentQuestion.anio_examen ? (
-              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase border border-[#d8ccc0]">
-                Convocatoria {currentQuestion.anio_examen}
-              </span>
-            ) : (
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#dfd6ca] text-[#55473a] tracking-wider uppercase">
-                C1 Estado (AGE)
-              </span>
-            )}
+          {/* Cabecera interna: Tags + botón X de cierre directo */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {temaBadgeTexto && (
+                <span className="text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase border border-[#d8ccc0]">
+                  {temaBadgeTexto}
+                </span>
+              )}
+              {currentQuestion.anio_examen ? (
+                <span className="text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase border border-[#d8ccc0]">
+                  Convocatoria {currentQuestion.anio_examen}
+                </span>
+              ) : (
+                <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#dfd6ca] text-[#55473a] tracking-wider uppercase">
+                  C1 Estado
+                </span>
+              )}
+            </div>
+
+            {/* Botón X dentro de la propia tarjeta */}
+            <button
+              onClick={resetTest}
+              className="p-1 rounded-lg hover:bg-[#ded3c7] text-[#8a796b] hover:text-[#3e342b] transition cursor-pointer shrink-0"
+              title="Salir del test"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
-          {/* Enunciado */}
-          <h2 className="text-base sm:text-lg font-medium text-[#342a22] leading-relaxed">
-            {currentQuestion.enunciado}
+          {/* Enunciado conciso y legible */}
+          <h2 className="text-sm sm:text-base font-medium text-[#342a22] leading-snug">
+            {enunciadoTexto}
           </h2>
 
-          {/* Opciones A, B, C, D */}
-          <div className="space-y-3 pt-2">
+          {/* Opciones A, B, C, D estilizadas y de altura optimizada */}
+          <div className="space-y-1.5 sm:space-y-2 pt-0.5">
             {opciones.map((opcion) => {
               const isSelected = selectedOption === opcion.key;
               const isCorrectOption = feedback && feedback.respuestaCorrecta === opcion.key;
@@ -196,7 +237,7 @@ export const TestRunner = () => {
                   cardStyle = 'bg-[#fbeae7] border-[#d8897c] text-[#7a392e] font-semibold';
                   badgeStyle = 'bg-[#b65345] text-white border-transparent';
                 } else {
-                  cardStyle = 'bg-white/30 border-transparent text-[#9a897b] opacity-50';
+                  cardStyle = 'bg-white/30 border-transparent text-[#9a897b] opacity-45';
                 }
               }
 
@@ -206,46 +247,46 @@ export const TestRunner = () => {
                   whileTap={!isAnswered ? { scale: 0.995 } : {}}
                   disabled={isAnswered || isLoading}
                   onClick={() => selectOption(opcion.key)}
-                  className={`w-full p-4 rounded-2xl border text-left flex items-start gap-3.5 transition-all duration-200 ${cardStyle}`}
+                  className={`w-full py-2 px-3 sm:py-2.5 sm:px-3.5 rounded-xl border text-left flex items-start gap-2.5 sm:gap-3 transition-all duration-150 cursor-pointer ${cardStyle}`}
                 >
-                  <span className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 border ${badgeStyle}`}>
+                  <span className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 border ${badgeStyle}`}>
                     {opcion.key}
                   </span>
-                  <span className="text-xs sm:text-sm pt-0.5 flex-1 leading-normal">
+                  <span className="text-xs sm:text-[13px] pt-0.5 flex-1 leading-snug">
                     {opcion.texto}
                   </span>
 
                   {isAnswered && isCorrectOption && (
-                    <CheckCircle2 className="w-5 h-5 text-[#487e5b] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[#487e5b] shrink-0 mt-0.5" />
                   )}
                   {isAnswered && isIncorrectOption && (
-                    <XCircle className="w-5 h-5 text-[#b65345] shrink-0 mt-0.5" />
+                    <XCircle className="w-4 h-4 text-[#b65345] shrink-0 mt-0.5" />
                   )}
                 </motion.button>
               );
             })}
           </div>
 
-          {/* Bloque Explicativo (Framer Motion) */}
+          {/* Bloque Explicativo Compacto */}
           <AnimatePresence>
             {isAnswered && feedback && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25 }}
+                transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <div className={`p-4 rounded-2xl border text-xs sm:text-sm space-y-1.5 ${
+                <div className={`p-2.5 sm:p-3 rounded-xl border text-xs leading-relaxed space-y-1 ${
                   feedback.esCorrecta
                     ? 'bg-[#e7f2eb] border-[#95bfa4] text-[#2c533c]'
                     : 'bg-[#fbece9] border-[#e09e93] text-[#823a2f]'
                 }`}>
                   <div className="flex items-center gap-1.5 font-bold">
-                    <Lightbulb className="w-4 h-4 shrink-0" />
+                    <Lightbulb className="w-3.5 h-3.5 shrink-0" />
                     <span>{feedback.esCorrecta ? '¡Respuesta Correcta!' : `Respuesta Incorrecta (Opción correcta: ${feedback.respuestaCorrecta})`}</span>
                   </div>
-                  <p className="text-[#594d42] leading-relaxed font-normal">
+                  <p className="text-[#594d42] leading-snug font-normal">
                     {feedback.explicacion || currentQuestion.explicacion}
                   </p>
                 </div>
@@ -253,19 +294,28 @@ export const TestRunner = () => {
             )}
           </AnimatePresence>
 
-          {/* Botón de Siguiente Pregunta (Adaptado a móvil) */}
-          <div className="flex justify-end pt-2">
+          {/* Botones de acción inferiores */}
+          <div className="flex items-center justify-between pt-1 gap-2">
+            <button
+              onClick={resetTest}
+              className="text-xs text-[#8a796b] hover:text-[#3e342b] transition py-1 px-1 cursor-pointer flex items-center gap-1"
+              title="Salir del test y volver al menú principal"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Salir del test</span>
+            </button>
+
             <button
               onClick={nextQuestion}
               disabled={!isAnswered}
-              className={`w-full sm:w-auto py-3 px-6 rounded-2xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-200 active:scale-95 ${
+              className={`py-2 px-5 sm:py-2.5 sm:px-6 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition duration-150 active:scale-95 ${
                 isAnswered
                   ? 'bg-[#3e342b] hover:bg-[#2c241d] text-white shadow-md cursor-pointer'
                   : 'bg-[#ded3c7] text-[#9a897b] cursor-not-allowed'
               }`}
             >
               {currentIndex + 1 < totalQuestions ? 'Siguiente Pregunta' : 'Ver Resultados'}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </motion.div>
