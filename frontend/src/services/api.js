@@ -1,7 +1,10 @@
+import { getPreguntasPorTema } from './temasBanco';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const DEMO_USER_ID = 'a0000000-0000-0000-0000-000000000001';
 
 export const api = {
+  getPreguntasPorTema,
   // Autenticación de usuarios (admin y Nemesis con contraseña Aprobado)
   async login({ username, password }) {
     try {
@@ -80,32 +83,32 @@ export const api = {
 
   // Generar test dinámico con IA para un tema específico (OpenRouter / Llama 3)
   async generarTestTema(tema, bloque = 'Temario Oficial C1 AGE') {
+    const nombreTema = typeof tema === 'object' ? (tema.titulo || tema.nombre || 'Tema') : (tema || 'Tema');
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout max para no dejar al usuario esperando
+
       const res = await fetch(`${API_BASE_URL}/test/generar-tema`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({ 
-          tema, 
+          tema: nombreTema, 
           bloque,
-          nombre_tema: tema 
+          nombre_tema: nombreTema 
         }),
       });
+      clearTimeout(timeoutId);
+
       if (!res.ok) throw new Error('Error en el servidor al generar test con IA');
       const data = await res.json();
+      if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
+        throw new Error('Formato de datos no válido');
+      }
       return data.data;
     } catch (err) {
-      console.warn('Usando generador contextual de contingencia:', err.message);
-      return Array.from({ length: 10 }).map((_, i) => ({
-        id: `mock-tema-${i + 1}`,
-        numero: i + 1,
-        enunciado: `[${nombreTema}] Pregunta ${i + 1} de nivel C1: De conformidad con la regulación legal vigente aplicable a la materia, ¿cuál de las siguientes proposiciones es la correcta?`,
-        opcion_a: 'Requiere autorización expresa previa del órgano ministerial competente',
-        opcion_b: 'El plazo general legal establecido es de tres meses a contar desde el acuerdo de iniciación',
-        opcion_c: 'Se produce silencio administrativo en sentido desestimatorio salvo previsión en norma de rango legal',
-        opcion_d: 'Constituye causa tasada de nulidad de pleno derecho conforme a la ley',
-        respuesta_correcta: ['A', 'B', 'C', 'D'][i % 4],
-        explicacion: `Fundamento legal y precepto regulador del bloque de "${nombreTema}".`,
-      }));
+      console.warn('Usando generador contextual de contingencia para tema:', nombreTema, err.message);
+      return getPreguntasPorTema(nombreTema);
     }
   },
 

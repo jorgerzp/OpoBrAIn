@@ -7,7 +7,8 @@ import {
   TrendingUp,
   BarChart3,
   Sparkles,
-  Bot
+  Bot,
+  Award
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -70,15 +71,19 @@ export const Dashboard = () => {
 
   // 2. Generar test de 10 preguntas por tema con IA (OpenRouter / Llama 3)
   const handleGenerarTema = async () => {
-    if (!selectedTema) return;
+    const temaToUse = selectedTema || (temas[0]?.titulo || 'Tema 1: La Constitución Española de 1978');
     try {
       setLoadingMode('generar-tema');
-      const questions = await api.generarTestTema(selectedTema);
+      const questions = await api.generarTestTema(temaToUse);
       startTest('tema', questions, { 
-        titulo: `Test IA (10 Preguntas): ${selectedTema}` 
+        titulo: `Test Oficial C1: ${temaToUse}` 
       });
     } catch (err) {
-      console.error('Error al generar test con IA:', err);
+      console.error('Error al generar test con IA, recurriendo a banco directo:', err);
+      const fallback = api.getPreguntasPorTema(temaToUse);
+      startTest('tema', fallback, { 
+        titulo: `Test C1: ${temaToUse}` 
+      });
     } finally {
       setLoadingMode(null);
     }
@@ -120,20 +125,41 @@ export const Dashboard = () => {
           <br className="hidden sm:inline" /> Banco oficial histórico y generación ilimitada de tests con IA.
         </p>
 
-        {/* Botón Principal Crema Get Started (Lanza los exámenes oficiales directamente) */}
-        <div className="pt-1">
+        {/* Botones Principales de Acción en Hero */}
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             onClick={handleStartOficiales}
             disabled={loadingMode === 'oficiales'}
-            className="cream-action-btn px-8 py-3 text-sm tracking-wide inline-flex items-center gap-2"
+            className="cream-action-btn w-full sm:w-auto px-7 py-3 text-sm tracking-wide inline-flex items-center justify-center gap-2 cursor-pointer shadow-lg"
           >
             {loadingMode === 'oficiales' ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-[#3e342b]" />
-                Cargando 10 preguntas oficiales...
+                <span>Cargando oficiales...</span>
               </>
             ) : (
-              'Get Started'
+              <>
+                <Award className="w-4 h-4 text-[#3e342b]" />
+                <span>Batería Oficial (10 Preguntas)</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleGenerarTema}
+            disabled={loadingMode === 'generar-tema'}
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white/15 hover:bg-white/25 active:scale-[0.98] border border-white/30 text-white font-medium text-xs sm:text-sm tracking-wide inline-flex items-center justify-center gap-2 transition cursor-pointer backdrop-blur-sm"
+          >
+            {loadingMode === 'generar-tema' ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Generando test...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 text-white/90" />
+                <span>Test por Temas ({selectedTema ? (selectedTema.match(/tema\s*\d+/i)?.[0] || 'Tema 1') : 'Tema 1'})</span>
+              </>
             )}
           </button>
         </div>
@@ -227,19 +253,19 @@ export const Dashboard = () => {
           {/* Botón Generar Test con animación de carga / spinner */}
           <button
             onClick={handleGenerarTema}
-            disabled={loadingMode === 'generar-tema' || !selectedTema}
-            className="mt-6 w-full py-3 px-4 bg-[#e5ddd3] hover:bg-[#dbd1c5] text-[#3e342b] font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition disabled:opacity-60 shadow-sm"
+            disabled={loadingMode === 'generar-tema'}
+            className="mt-6 w-full py-3.5 px-4 bg-[#3e342b] hover:bg-[#2c241d] active:scale-[0.98] text-white font-semibold rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 transition disabled:opacity-60 shadow-md cursor-pointer"
           >
             {loadingMode === 'generar-tema' ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-[#9a897b]" />
-                <span className="animate-pulse">Generando con IA...</span>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span className="animate-pulse">Generando test con IA...</span>
               </>
             ) : (
               <>
-                <Bot className="w-4 h-4 text-[#756456]" />
-                <span>Generar Test</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <Bot className="w-4 h-4 text-[#ded3c7]" />
+                <span>Hacer test de {selectedTema ? (selectedTema.match(/tema\s*\d+/i)?.[0] || 'este tema') : 'este tema'}</span>
+                <ChevronRight className="w-4 h-4" />
               </>
             )}
           </button>

@@ -173,7 +173,7 @@ Genera las 10 preguntas tipo test cumpliendo rigurosamente las instrucciones.`;
     const preguntasConId = preguntasGeneradas.map((p, index) => ({
       id: `gen-${Date.now()}-${index + 1}`,
       numero: index + 1,
-      tema_nombre: nombre_tema,
+      tema_nombre: temaFinal,
       enunciado: p.enunciado,
       opcion_a: p.opcion_a,
       opcion_b: p.opcion_b,
@@ -185,7 +185,7 @@ Genera las 10 preguntas tipo test cumpliendo rigurosamente las instrucciones.`;
 
     res.json({
       success: true,
-      tema: nombre_tema,
+      tema: temaFinal,
       fuente: 'openrouter',
       total: preguntasConId.length,
       data: preguntasConId,
@@ -195,10 +195,10 @@ Genera las 10 preguntas tipo test cumpliendo rigurosamente las instrucciones.`;
     // Fallback de contingencia para garantizar fluidez
     res.json({
       success: true,
-      tema: nombre_tema,
+      tema: temaFinal,
       fuente: 'fallback_error',
       total: 10,
-      data: generarPreguntasMockTema(nombre_tema),
+      data: generarPreguntasMockTema(temaFinal),
     });
   }
 };

@@ -42,46 +42,33 @@ export const useTestStore = create((set, get) => ({
     const currentQuestion = questions[currentIndex];
     if (!currentQuestion) return;
 
-    set({ selectedOption: option, isAnswered: true, isLoading: true });
+    const optNormalizada = option.trim().toUpperCase();
+    const respEsperada = (currentQuestion.respuesta_correcta || 'A').trim().toUpperCase();
+    const esCorrecta = optNormalizada === respEsperada;
+    const explicacion = currentQuestion.explicacion || 'Fundamento legal aplicable conforme al temario oficial del Estado.';
 
+    set({ 
+      selectedOption: option, 
+      isAnswered: true, 
+      isLoading: false,
+      feedback: {
+        esCorrecta,
+        respuestaCorrecta: respEsperada,
+        explicacion,
+      },
+      score: {
+        aciertos: esCorrecta ? score.aciertos + 1 : score.aciertos,
+        fallos: !esCorrecta ? score.fallos + 1 : score.fallos,
+      },
+    });
+
+    // En segundo plano, notificar al backend si está disponible (sin bloquear la interacción del opositor)
     try {
-      // Registrar la respuesta y llamar al backend para el UPSERT en historial_errores
-      const result = await api.responderPregunta({
+      api.responderPregunta({
         preguntaId: currentQuestion.id,
         respuestaSeleccionada: option,
-      });
-
-      const esCorrecta = result.es_correcta;
-
-      set({
-        isLoading: false,
-        feedback: {
-          esCorrecta,
-          respuestaCorrecta: result.respuesta_correcta,
-          explicacion: result.explicacion,
-        },
-        score: {
-          aciertos: esCorrecta ? score.aciertos + 1 : score.aciertos,
-          fallos: !esCorrecta ? score.fallos + 1 : score.fallos,
-        },
-      });
-    } catch (err) {
-      console.error('Error al responder:', err);
-      // Fallback seguro
-      const esCorrecta = currentQuestion.respuesta_correcta === option;
-      set({
-        isLoading: false,
-        feedback: {
-          esCorrecta,
-          respuestaCorrecta: currentQuestion.respuesta_correcta,
-          explicacion: currentQuestion.explicacion,
-        },
-        score: {
-          aciertos: esCorrecta ? score.aciertos + 1 : score.aciertos,
-          fallos: !esCorrecta ? score.fallos + 1 : score.fallos,
-        },
-      });
-    }
+      }).catch(() => {});
+    } catch (_) {}
   },
 
   // Pasar a la siguiente pregunta o finalizar el test

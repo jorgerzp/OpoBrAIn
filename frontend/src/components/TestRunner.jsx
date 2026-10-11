@@ -154,15 +154,19 @@ export const TestRunner = () => {
           className="warm-cream-card rounded-3xl p-6 sm:p-9 text-[#443930] space-y-6 shadow-2xl"
         >
           {/* Tags de Tema o Año */}
-          <div className="flex items-center gap-2">
-            {currentQuestion.tema_numero && (
-              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase">
-                Tema {currentQuestion.tema_numero}
+          <div className="flex items-center gap-2 flex-wrap">
+            {(currentQuestion.tema_numero || currentQuestion.tema_nombre) && (
+              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase border border-[#d8ccc0]">
+                {currentQuestion.tema_numero ? `Tema ${currentQuestion.tema_numero}` : currentQuestion.tema_nombre}
               </span>
             )}
-            {currentQuestion.anio_examen && (
-              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase">
+            {currentQuestion.anio_examen ? (
+              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase border border-[#d8ccc0]">
                 Convocatoria {currentQuestion.anio_examen}
+              </span>
+            ) : (
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#dfd6ca] text-[#55473a] tracking-wider uppercase">
+                C1 Estado (AGE)
               </span>
             )}
           </div>
