@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle2, 
@@ -7,7 +7,10 @@ import {
   Home, 
   Award, 
   Lightbulb,
-  X
+  X,
+  Clock,
+  AlertTriangle,
+  Scale
 } from 'lucide-react';
 import { useTestStore } from '../store/useTestStore';
 
@@ -22,6 +25,11 @@ export const TestRunner = () => {
     isCompleted,
     score,
     testMeta,
+    isTimed,
+    timeLimitMinutes,
+    remainingSeconds,
+    timerExpired,
+    tickTimer,
     selectOption,
     nextQuestion,
     resetTest,
@@ -30,11 +38,31 @@ export const TestRunner = () => {
   const currentQuestion = questions[currentIndex];
   const totalQuestions = questions.length;
 
+  // Efecto del temporizador de cuenta atrás activo
+  useEffect(() => {
+    if (!isTimed || isCompleted) return;
+
+    const interval = setInterval(() => {
+      tickTimer();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isTimed, isCompleted, tickTimer]);
+
+  // Formato mm:ss para el reloj
+  const formatTime = (secs) => {
+    if (secs === null || secs === undefined || secs < 0) return '00:00';
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
   // Pantalla de Resultados al finalizar el test
   if (isCompleted) {
     const aciertos = score.aciertos;
     const fallos = score.fallos;
-    const penalizacion = (fallos * 0.33);
+    const sinResponder = Math.max(0, totalQuestions - (aciertos + fallos));
+    const penalizacion = fallos * 0.33;
     const puntuacionNeta = Math.max(0, aciertos - penalizacion).toFixed(2);
     const notaSobreDiez = totalQuestions > 0 ? ((puntuacionNeta / totalQuestions) * 10).toFixed(2) : 0;
     const esAprobado = parseFloat(notaSobreDiez) >= 5.0;
@@ -44,7 +72,7 @@ export const TestRunner = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="warm-cream-card rounded-3xl p-6 sm:p-8 text-[#443930] text-center space-y-5 shadow-2xl relative"
+          className="warm-cream-card rounded-3xl p-6 sm:p-8 text-[#443930] text-center space-y-5 shadow-2xl relative border border-[#d8ccc0]"
         >
           {/* Botón X de salida en pantalla de resultados */}
           <button
@@ -54,6 +82,14 @@ export const TestRunner = () => {
           >
             <X className="w-5 h-5" />
           </button>
+
+          {/* Banner si el test finalizó por agotamiento de tiempo */}
+          {timerExpired && (
+            <div className="p-3 rounded-2xl bg-[#fbece9] border border-[#e09e93] text-[#823a2f] text-xs font-semibold flex items-center justify-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-[#b65345]" />
+              <span>¡Tiempo límite agotado! El test se ha cerrado automáticamente.</span>
+            </div>
+          )}
 
           <div className="w-14 h-14 mx-auto rounded-2xl bg-[#9a897b] text-white flex items-center justify-center shadow-md">
             <Award className="w-7 h-7" />
@@ -67,7 +103,7 @@ export const TestRunner = () => {
               {esAprobado ? '¡Test Superado!' : 'Sesión Finalizada'}
             </h2>
             <p className="text-xs text-[#736457]">
-              {testMeta?.titulo || 'Evaluación de Oposiciones'}
+              {testMeta?.titulo || 'Evaluación Oficial de Oposiciones C1'}
             </p>
           </div>
 
@@ -82,9 +118,30 @@ export const TestRunner = () => {
               <div className="text-[10px] sm:text-[11px] text-[#736457]">Fallos (-0.33)</div>
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-bold text-[#3e342b]">{notaSobreDiez} <span className="text-xs font-normal">/10</span></div>
+              <div className="text-xl sm:text-2xl font-bold text-[#3e342b]">
+                {notaSobreDiez} <span className="text-xs font-normal">/10</span>
+              </div>
               <div className="text-[10px] sm:text-[11px] text-[#736457]">Nota Final</div>
             </div>
+          </div>
+
+          {/* Metadatos adicionales de la sesión */}
+          <div className="text-[11px] text-[#7a6b5e] bg-white/70 p-2.5 rounded-xl border border-[#ded3c7] flex items-center justify-around">
+            <span>
+              Total: <strong>{totalQuestions} preguntas</strong>
+            </span>
+            <span>•</span>
+            <span>
+              Puntuación neta: <strong>{puntuacionNeta} pts</strong>
+            </span>
+            {isTimed && (
+              <>
+                <span>•</span>
+                <span>
+                  Tiempo fijado: <strong>{timeLimitMinutes} min</strong>
+                </span>
+              </>
+            )}
           </div>
 
           <button
@@ -122,39 +179,61 @@ export const TestRunner = () => {
 
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
 
-  // Limpiar enunciado para que no repita el prefijo si ya viene en el tema
-  const enunciadoTexto = (currentQuestion.enunciado || '')
-    .replace(/^\[.*?\]\s*/, '')
-    .trim();
+  // Enunciado limpio
+  const enunciadoTexto = (currentQuestion.enunciado || '').trim();
 
-  // Etiqueta concisa de tema
-  const temaBadgeTexto = currentQuestion.tema_numero 
-    ? `Tema ${currentQuestion.tema_numero}`
-    : (currentQuestion.tema_nombre ? (currentQuestion.tema_nombre.match(/tema\s*\d+/i)?.[0] || 'Tema') : null);
+  // Etiqueta de tema
+  const temaBadgeTexto = currentQuestion.temaTitulo || 
+    (currentQuestion.temaNumero ? `Tema ${currentQuestion.temaNumero}` : null) ||
+    currentQuestion.tema_nombre || 
+    null;
+
+  // Ley de referencia
+  const leyReferenciaTexto = currentQuestion.leyReferencia || null;
 
   return (
     <div className="relative z-10 max-w-2xl mx-auto w-full px-3 sm:px-4 py-1 sm:py-2 space-y-2.5">
       
-      {/* Barra superior compacta con título, progreso y botón X visible */}
+      {/* Barra superior con título, temporizador si está activo, y botón salir */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs text-white/90">
+          
           <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
-            <span className="font-medium truncate text-xs sm:text-sm text-white/90">
-              {testMeta?.titulo || 'Test Activo'}
+            <span className="font-medium truncate text-xs sm:text-sm text-white/95">
+              {testMeta?.titulo || 'Test de Oposición C1'}
             </span>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Reloj Temporizador activo */}
+            {isTimed ? (
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border transition ${
+                remainingSeconds !== null && remainingSeconds < 60 
+                  ? 'bg-rose-500/25 text-rose-200 border-rose-400 animate-pulse'
+                  : remainingSeconds !== null && remainingSeconds < 180
+                  ? 'bg-amber-500/25 text-amber-200 border-amber-400'
+                  : 'bg-white/15 text-white border-white/30 backdrop-blur-sm'
+              }`}>
+                <Clock className="w-3.5 h-3.5 shrink-0" />
+                <span className="tabular-nums tracking-wider">{formatTime(remainingSeconds)}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-white/10 text-white/80 border border-white/20">
+                <Clock className="w-3 h-3 opacity-60" />
+                <span>Sin tiempo</span>
+              </div>
+            )}
+
             {/* Contador de preguntas */}
             <span className="font-semibold text-[11px] tracking-wider bg-white/10 px-2.5 py-0.5 rounded-full border border-white/20">
               {currentIndex + 1} / {totalQuestions}
             </span>
 
-            {/* BOTÓN X PARA SALIRSE DEL TEST CUANDO QUIERA */}
+            {/* Botón Salir */}
             <button
               onClick={resetTest}
               className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-white text-xs font-semibold transition border border-white/30 cursor-pointer shadow-xs"
-              title="Salir del test y volver al Dashboard"
+              title="Salir del test y volver al menú principal"
             >
               <X className="w-3.5 h-3.5" />
               <span>Salir</span>
@@ -176,33 +255,29 @@ export const TestRunner = () => {
       {/* Tarjeta de la Pregunta Actual (Estilo Cream Card ajustado para entrar en 1 pantalla) */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentQuestion.id}
+          key={currentQuestion.id || currentIndex}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.18 }}
-          className="warm-cream-card rounded-2xl sm:rounded-3xl p-4 sm:p-5 text-[#443930] space-y-3 sm:space-y-3.5 shadow-xl"
+          className="warm-cream-card rounded-2xl sm:rounded-3xl p-4 sm:p-5 text-[#443930] space-y-3 sm:space-y-3.5 shadow-xl border border-[#d8ccc0]"
         >
-          {/* Cabecera interna: Tags + botón X de cierre directo */}
+          {/* Cabecera interna: Tags de tema, ley aplicable y botón X */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 flex-wrap">
               {temaBadgeTexto && (
-                <span className="text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase border border-[#d8ccc0]">
+                <span className="text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#eae1d5] text-[#554639] tracking-wider uppercase border border-[#d8ccc0] max-w-[280px] sm:max-w-md truncate">
                   {temaBadgeTexto}
                 </span>
               )}
-              {currentQuestion.anio_examen ? (
-                <span className="text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#eae1d5] text-[#6d5e51] tracking-wider uppercase border border-[#d8ccc0]">
-                  Convocatoria {currentQuestion.anio_examen}
-                </span>
-              ) : (
-                <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#dfd6ca] text-[#55473a] tracking-wider uppercase">
-                  C1 Estado
+              {leyReferenciaTexto && (
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#f0e8de] text-[#6d5e51] border border-[#dcd0c3] flex items-center gap-1">
+                  <Scale className="w-3 h-3 text-[#8a796b]" />
+                  <span>{leyReferenciaTexto}</span>
                 </span>
               )}
             </div>
 
-            {/* Botón X dentro de la propia tarjeta */}
             <button
               onClick={resetTest}
               className="p-1 rounded-lg hover:bg-[#ded3c7] text-[#8a796b] hover:text-[#3e342b] transition cursor-pointer shrink-0"
@@ -212,12 +287,12 @@ export const TestRunner = () => {
             </button>
           </div>
 
-          {/* Enunciado conciso y legible */}
+          {/* Enunciado oficial */}
           <h2 className="text-sm sm:text-base font-medium text-[#342a22] leading-snug">
             {enunciadoTexto}
           </h2>
 
-          {/* Opciones A, B, C, D estilizadas y de altura optimizada */}
+          {/* Opciones A, B, C, D */}
           <div className="space-y-1.5 sm:space-y-2 pt-0.5">
             {opciones.map((opcion) => {
               const isSelected = selectedOption === opcion.key;
@@ -229,11 +304,9 @@ export const TestRunner = () => {
 
               if (isAnswered) {
                 if (isCorrectOption) {
-                  // Acierto: Verde salvia elegante
                   cardStyle = 'bg-[#e2efe6] border-[#74a584] text-[#285038] font-semibold';
                   badgeStyle = 'bg-[#487e5b] text-white border-transparent';
                 } else if (isIncorrectOption) {
-                  // Fallo: Terracota suave
                   cardStyle = 'bg-[#fbeae7] border-[#d8897c] text-[#7a392e] font-semibold';
                   badgeStyle = 'bg-[#b65345] text-white border-transparent';
                 } else {
@@ -267,7 +340,7 @@ export const TestRunner = () => {
             })}
           </div>
 
-          {/* Bloque Explicativo Compacto */}
+          {/* Bloque Explicativo con Fundamento Legal */}
           <AnimatePresence>
             {isAnswered && feedback && (
               <motion.div
@@ -284,7 +357,11 @@ export const TestRunner = () => {
                 }`}>
                   <div className="flex items-center gap-1.5 font-bold">
                     <Lightbulb className="w-3.5 h-3.5 shrink-0" />
-                    <span>{feedback.esCorrecta ? '¡Respuesta Correcta!' : `Respuesta Incorrecta (Opción correcta: ${feedback.respuestaCorrecta})`}</span>
+                    <span>
+                      {feedback.esCorrecta 
+                        ? '¡Respuesta Correcta!' 
+                        : `Respuesta Incorrecta (Opción correcta: ${feedback.respuestaCorrecta})`}
+                    </span>
                   </div>
                   <p className="text-[#594d42] leading-snug font-normal">
                     {feedback.explicacion || currentQuestion.explicacion}

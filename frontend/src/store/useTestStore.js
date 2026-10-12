@@ -4,7 +4,7 @@ import { api } from '../services/api';
 export const useTestStore = create((set, get) => ({
   // Estado
   testActive: false,
-  testMode: null, // 'oficial' | 'tema' | 'repaso'
+  testMode: null, // 'oficial' | 'tema' | 'personalizado' | 'repaso'
   testMeta: {},
   questions: [],
   currentIndex: 0,
@@ -18,8 +18,17 @@ export const useTestStore = create((set, get) => ({
     fallos: 0,
   },
 
-  // Iniciar test con preguntas cargadas
+  // Temporizador
+  isTimed: false,
+  timeLimitMinutes: null,
+  remainingSeconds: null,
+  timerExpired: false,
+
+  // Iniciar test con preguntas cargadas y configuración
   startTest: (mode, questions, meta = {}) => {
+    const isTimed = Boolean(meta.isTimed && meta.timeLimitMinutes > 0);
+    const totalSeconds = isTimed ? meta.timeLimitMinutes * 60 : null;
+
     set({
       testActive: true,
       testMode: mode,
@@ -31,13 +40,42 @@ export const useTestStore = create((set, get) => ({
       feedback: null,
       isCompleted: false,
       score: { aciertos: 0, fallos: 0 },
+      isTimed,
+      timeLimitMinutes: isTimed ? meta.timeLimitMinutes : null,
+      remainingSeconds: totalSeconds,
+      timerExpired: false,
     });
   },
 
-  // Seleccionar una opción (A, B, C o D) antes o durante la confirmación
+  // Reducir un segundo del temporizador
+  tickTimer: () => {
+    const { isTimed, remainingSeconds, isCompleted } = get();
+    if (!isTimed || isCompleted || remainingSeconds === null) return;
+
+    if (remainingSeconds <= 1) {
+      set({
+        remainingSeconds: 0,
+        isCompleted: true,
+        timerExpired: true,
+      });
+    } else {
+      set({ remainingSeconds: remainingSeconds - 1 });
+    }
+  },
+
+  // Finalizar explícitamente por tiempo
+  finishDueToTimeout: () => {
+    set({
+      isCompleted: true,
+      timerExpired: true,
+      remainingSeconds: 0,
+    });
+  },
+
+  // Seleccionar una opción (A, B, C o D)
   selectOption: async (option) => {
-    const { isAnswered, questions, currentIndex, score } = get();
-    if (isAnswered) return; // Ya se respondió esta pregunta
+    const { isAnswered, questions, currentIndex, score, isCompleted } = get();
+    if (isAnswered || isCompleted) return; // Ya se respondió esta pregunta o test finalizado
 
     const currentQuestion = questions[currentIndex];
     if (!currentQuestion) return;
@@ -100,6 +138,10 @@ export const useTestStore = create((set, get) => ({
       feedback: null,
       isCompleted: false,
       score: { aciertos: 0, fallos: 0 },
+      isTimed: false,
+      timeLimitMinutes: null,
+      remainingSeconds: null,
+      timerExpired: false,
     });
   },
 }));
