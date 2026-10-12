@@ -124,7 +124,7 @@ export const LoginPage = () => {
                     autoCorrect="off"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="admin o Nemesis"
+                    placeholder="Usuario"
                     className="w-full pl-10 pr-4 py-2.5 bg-white/80 border border-[#d8ccc0] text-[#3e342b] rounded-xl text-sm focus:outline-none focus:border-[#8a796b] focus:bg-white transition"
                   />
                 </div>
@@ -142,7 +142,7 @@ export const LoginPage = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Aprobado"
+                    placeholder="Contraseña"
                     className="w-full pl-10 pr-10 py-2.5 bg-white/80 border border-[#d8ccc0] text-[#3e342b] rounded-xl text-sm focus:outline-none focus:border-[#8a796b] focus:bg-white transition"
                   />
                   <button
