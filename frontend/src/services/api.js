@@ -70,12 +70,12 @@ export const api = {
     }
   },
 
-  // Generar test dinámico con IA para un tema específico (OpenRouter / Llama 3)
-  async generarTestTema(tema, bloque = 'Temario Oficial C1 AGE') {
+  // Generar test dinámico con IA para un tema y sus apartados específicos (OpenRouter)
+  async generarTestTema(tema, bloque = 'Temario Oficial C1 AGE', epigrafes = null, cantidad = 10) {
     const nombreTema = typeof tema === 'object' ? (tema.titulo || tema.nombre || 'Tema') : (tema || 'Tema');
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout max para no dejar al usuario esperando
+      const timeoutId = setTimeout(() => controller.abort(), 35000); // 35s para peticiones de IA
 
       const res = await fetch(`${API_BASE_URL}/test/generar-tema`, {
         method: 'POST',
@@ -84,19 +84,30 @@ export const api = {
         body: JSON.stringify({ 
           tema: nombreTema, 
           bloque,
-          nombre_tema: nombreTema 
+          nombre_tema: nombreTema,
+          epigrafes: epigrafes,
+          cantidad: cantidad || 10,
         }),
       });
       clearTimeout(timeoutId);
 
-      if (!res.ok) throw new Error('Error en el servidor al generar test con IA');
+      if (!res.ok) {
+        let errorMsg = 'Error en el servidor al generar test con IA';
+        try {
+          const errData = await res.json();
+          if (errData?.message) errorMsg = errData.message;
+        } catch (_) {}
+        throw new Error(errorMsg);
+      }
+
       const data = await res.json();
       if (!data.data || !Array.isArray(data.data) || data.data.length === 0) {
-        throw new Error('Formato de datos no válido');
+        throw new Error('Formato de datos devuelto por la IA no válido');
       }
       return data.data;
     } catch (err) {
-      console.warn('Usando generador contextual de contingencia para tema:', nombreTema, err.message);
+      console.warn('Contingencia para generación de tema:', nombreTema, err.message);
+      // Devolver banco contextual si el servidor o la IA no están disponibles
       return getPreguntasPorTema(nombreTema);
     }
   },

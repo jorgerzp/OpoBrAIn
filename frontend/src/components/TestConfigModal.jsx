@@ -9,12 +9,15 @@ import {
   ShieldCheck, 
   CheckCircle2, 
   Zap, 
-  X
+  X,
+  Sparkles,
+  BookOpen
 } from 'lucide-react';
 import { BLOQUES_TEMARIO } from '../services/temarioData';
 
 export const TestConfigModal = ({
   selectedTopicIds = [],
+  selectedEpigrafeIds = [],
   onBackToTopics,
   onStartTest,
   onClose,
@@ -24,12 +27,15 @@ export const TestConfigModal = ({
   const [numPreguntas, setNumPreguntas] = useState(10);
   const [customNum, setCustomNum] = useState('');
 
+  // Modo de generación: 'ia' (OpenRouter) o 'banco' (Preguntas oficiales pre-cargadas)
+  const [modoGeneracion, setModoGeneracion] = useState('ia');
+
   // Configuración de tiempo
   const [isTimed, setIsTimed] = useState(false);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(15);
 
   // Opciones predefinidas de preguntas
-  const PREGUNTAS_PRESETS = [10, 20, 25, 30, 50, 100];
+  const PREGUNTAS_PRESETS = [10, 20, 25, 30, 50];
 
   // Opciones del desplegable de tiempo
   const TIEMPO_OPCIONES = [
@@ -43,7 +49,7 @@ export const TestConfigModal = ({
     { value: 120, label: '120 minutos (2 horas)' },
   ];
 
-  // Resumen de bloques seleccionados
+  // Resumen de bloques y epígrafes seleccionados
   const resumenBloques = React.useMemo(() => {
     const bloquesMap = new Map();
     selectedTopicIds.forEach((id) => {
@@ -57,13 +63,20 @@ export const TestConfigModal = ({
               temas: [],
             });
           }
-          bloquesMap.get(b.id).temas.push(tema.numero);
+          const epigrafesMarcados = tema.epigrafes?.filter((e) => selectedEpigrafeIds.includes(e.id)) || [];
+          bloquesMap.get(b.id).temas.push({
+            numero: tema.numero,
+            titulo: tema.titulo,
+            epigrafesCount: epigrafesMarcados.length,
+            totalEpigrafes: tema.epigrafes?.length || 0,
+            epigrafesNombres: epigrafesMarcados.map((e) => e.nombre),
+          });
           break;
         }
       }
     });
     return Array.from(bloquesMap.values());
-  }, [selectedTopicIds]);
+  }, [selectedTopicIds, selectedEpigrafeIds]);
 
   const handleCustomChange = (val) => {
     setCustomNum(val);
@@ -79,6 +92,8 @@ export const TestConfigModal = ({
       isTimed,
       timeLimitMinutes: isTimed ? timeLimitMinutes : null,
       selectedTopicIds,
+      selectedEpigrafeIds,
+      modoGeneracion,
     });
   };
 
@@ -89,7 +104,7 @@ export const TestConfigModal = ({
   return (
     <div className="flex flex-col h-[88vh] max-h-[680px] w-full text-[#3e342b] overflow-hidden bg-[#fbf9f5]">
       
-      {/* 1. CABECERA FIJA SUPERIOR (Siempre visible, con botón X de cierre) */}
+      {/* 1. CABECERA FIJA SUPERIOR */}
       <div className="shrink-0 p-4 sm:p-5 border-b border-[#ded3c7] bg-[#f7f2ea] flex items-center justify-between gap-3">
         <div className="space-y-0.5 min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -129,32 +144,94 @@ export const TestConfigModal = ({
         </div>
       </div>
 
-      {/* 2. CUERPO SCROLLABLE (Todo el contenido se ajusta de forma limpia sin desbordar la pantalla) */}
+      {/* 2. CUERPO SCROLLABLE */}
       <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 custom-scrollbar">
         
         {/* Resumen de Contenidos Seleccionados */}
         <div className="p-3 sm:p-3.5 rounded-2xl bg-[#ebe3d8] border border-[#d8ccc0] space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-[#55463a] uppercase tracking-wider text-[11px]">
-              Temario seleccionado ({selectedTopicIds.length} temas en {resumenBloques.length} bloques):
+            <span className="font-bold text-[#554639] uppercase tracking-wider text-[11px]">
+              Temario y bloques específicos ({selectedTopicIds.length} temas • {selectedEpigrafeIds.length} apartados):
             </span>
             <button
               type="button"
               onClick={onBackToTopics}
               className="text-[11px] font-semibold text-[#3e342b] hover:underline cursor-pointer"
             >
-              Modificar temas
+              Modificar selección
             </button>
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto custom-scrollbar">
             {resumenBloques.map((b, idx) => (
               <span
                 key={idx}
                 className="text-[11px] px-2 py-0.5 rounded-lg bg-white/95 text-[#3e342b] border border-[#d8ccc0] font-medium"
               >
-                <strong>{b.numeroRomano}:</strong> {b.temas.length === 1 ? `Tema ${b.temas[0]}` : `${b.temas.length} temas`}
+                <strong>{b.numeroRomano}:</strong> {b.temas.map((t) => `T${t.numero}${t.epigrafesCount > 0 && t.epigrafesCount < t.totalEpigrafes ? ` (${t.epigrafesCount} ap.)` : ''}`).join(', ')}
               </span>
             ))}
+          </div>
+        </div>
+
+        {/* SECCIÓN MODO DE GENERACIÓN (IA OpenRouter vs Banco Oficial) */}
+        <div className="space-y-2">
+          <label className="text-xs sm:text-sm font-bold text-[#342a22] flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#8a796b]" />
+            <span>Motor de generación de preguntas:</span>
+          </label>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              onClick={() => setModoGeneracion('ia')}
+              className={`p-3 rounded-2xl border text-left flex items-start gap-2.5 transition cursor-pointer ${
+                modoGeneracion === 'ia'
+                  ? 'bg-[#ede5da] border-[#a59485] shadow-2xs'
+                  : 'bg-white/80 border-[#ded3c7] hover:bg-white opacity-85'
+              }`}
+            >
+              <div className={`w-4 h-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 ${
+                modoGeneracion === 'ia' ? 'bg-[#3e342b] border-[#3e342b] text-white' : 'border-[#b5a79a]'
+              }`}>
+                {modoGeneracion === 'ia' && <CheckCircle2 className="w-3 h-3" />}
+              </div>
+              <div>
+                <div className="text-xs font-bold text-[#342a22] flex items-center gap-1.5">
+                  <span>Generación con IA (OpenRouter)</span>
+                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#3e342b] text-white uppercase">
+                    Específico
+                  </span>
+                </div>
+                <p className="text-[10.5px] text-[#736457] leading-tight mt-0.5">
+                  Genera preguntas 100% dinámicas centradas estrictamente en los bloques y apartados que has seleccionado.
+                </p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setModoGeneracion('banco')}
+              className={`p-3 rounded-2xl border text-left flex items-start gap-2.5 transition cursor-pointer ${
+                modoGeneracion === 'banco'
+                  ? 'bg-[#ede5da] border-[#a59485] shadow-2xs'
+                  : 'bg-white/80 border-[#ded3c7] hover:bg-white opacity-85'
+              }`}
+            >
+              <div className={`w-4 h-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 ${
+                modoGeneracion === 'banco' ? 'bg-[#3e342b] border-[#3e342b] text-white' : 'border-[#b5a79a]'
+              }`}>
+                {modoGeneracion === 'banco' && <CheckCircle2 className="w-3 h-3" />}
+              </div>
+              <div>
+                <div className="text-xs font-bold text-[#342a22] flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-[#54463a]" />
+                  <span>Banco de Exámenes Oficiales</span>
+                </div>
+                <p className="text-[10.5px] text-[#736457] leading-tight mt-0.5">
+                  Preguntas reales recopiladas de convocatorias oficiales del INAP de los temas marcados.
+                </p>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -170,7 +247,7 @@ export const TestConfigModal = ({
             </span>
           </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {PREGUNTAS_PRESETS.map((p) => {
               const isSelected = numPreguntas === p && !customNum;
               return (
@@ -311,7 +388,7 @@ export const TestConfigModal = ({
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#8a796b] shrink-0" />
             <span className="text-[11px] sm:text-xs">
-              Baremo oficial INAP: <strong>+1.0</strong> acierto, <strong>-0.33</strong> fallo. Preguntas reales con leyes.
+              Baremo oficial INAP: <strong>+1.0</strong> acierto, <strong>-0.33</strong> fallo. Explicación legal en cada respuesta.
             </span>
           </div>
           <span className="font-bold text-[#3e342b] shrink-0 ml-2">
@@ -321,7 +398,7 @@ export const TestConfigModal = ({
 
       </div>
 
-      {/* 3. PIE DE PÁGINA FIJO INFERIOR (Siempre visible) */}
+      {/* 3. PIE DE PÁGINA FIJO INFERIOR */}
       <div className="shrink-0 p-3 sm:p-4 border-t border-[#ded3c7] bg-[#f3ede4] flex items-center justify-between gap-3">
         <button
           type="button"
@@ -338,8 +415,17 @@ export const TestConfigModal = ({
           onClick={handleStart}
           className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-[#3e342b] hover:bg-[#282019] active:scale-[0.98] text-white font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 transition shadow-md cursor-pointer disabled:opacity-50"
         >
-          <Play className="w-4 h-4 fill-white" />
-          <span>Comenzar Test ({numPreguntas} Preguntas)</span>
+          {modoGeneracion === 'ia' ? (
+            <>
+              <Sparkles className="w-4 h-4 text-[#e0d6cb]" />
+              <span>Generar Test con IA ({numPreguntas} Preguntas)</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-4 h-4 fill-white" />
+              <span>Comenzar Test ({numPreguntas} Preguntas)</span>
+            </>
+          )}
         </button>
       </div>
 

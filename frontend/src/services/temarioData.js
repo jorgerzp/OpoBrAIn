@@ -1,6 +1,5 @@
 // Temario Oficial y Banco de Preguntas Reales Normativas para C1 AGE
 // 6 Bloques Oficiales y 45 Temas rigurosamente estructurados según la convocatoria estatal
-
 export const BLOQUES_TEMARIO = [
   {
     id: 'bloque-1',
@@ -17,6 +16,14 @@ export const BLOQUES_TEMARIO = [
         numero: 1,
         titulo: 'La Constitución Española de 1978: estructura y contenido. Derechos y deberes fundamentales, garantía y suspensión, Tribunal Constitucional, Defensor del Pueblo y reforma',
         leyes: 'Constitución Española de 1978 (arts. 1 a 169), LOTC 2/1979, LO 3/1981 del Defensor del Pueblo',
+        epigrafes: [
+          { id: 'b1-t1-e1', numero: 1, nombre: 'Estructura y contenido general de la Constitución' },
+          { id: 'b1-t1-e2', numero: 2, nombre: 'Derechos y deberes fundamentales (Título I)' },
+          { id: 'b1-t1-e3', numero: 3, nombre: 'Garantía y suspensión de derechos y libertades' },
+          { id: 'b1-t1-e4', numero: 4, nombre: 'El Tribunal Constitucional' },
+          { id: 'b1-t1-e5', numero: 5, nombre: 'El Defensor del Pueblo' },
+          { id: 'b1-t1-e6', numero: 6, nombre: 'La reforma constitucional (Título X)' },
+        ],
       },
       {
         id: 'b1-t2',
@@ -25,6 +32,12 @@ export const BLOQUES_TEMARIO = [
         numero: 2,
         titulo: 'La Jefatura del Estado. La Corona: funciones constitucionales del Rey. Sucesión y regencia',
         leyes: 'Constitución Española de 1978 (Título II, arts. 56 a 65)',
+        epigrafes: [
+          { id: 'b1-t2-e1', numero: 1, nombre: 'La Corona y la Jefatura del Estado' },
+          { id: 'b1-t2-e2', numero: 2, nombre: 'Funciones constitucionales del Rey' },
+          { id: 'b1-t2-e3', numero: 3, nombre: 'Sucesión a la Corona, Regencia y Tutela' },
+          { id: 'b1-t2-e4', numero: 4, nombre: 'El refrendo de los actos del Rey' },
+        ],
       },
       {
         id: 'b1-t3',
@@ -33,6 +46,12 @@ export const BLOQUES_TEMARIO = [
         numero: 3,
         titulo: 'Las Cortes Generales: composición, atribuciones y funcionamiento del Congreso de los Diputados y del Senado',
         leyes: 'Constitución Española de 1978 (Título III, arts. 66 a 96), Reglamentos de las Cámaras',
+        epigrafes: [
+          { id: 'b1-t3-e1', numero: 1, nombre: 'Las Cortes Generales: atribuciones y naturaleza' },
+          { id: 'b1-t3-e2', numero: 2, nombre: 'El Congreso de los Diputados: composición y elección' },
+          { id: 'b1-t3-e3', numero: 3, nombre: 'El Senado: composición y carácter territorial' },
+          { id: 'b1-t3-e4', numero: 4, nombre: 'Estatuto de los parlamentarios y funcionamiento de las Cámaras' },
+        ],
       },
       {
         id: 'b1-t4',
@@ -41,6 +60,12 @@ export const BLOQUES_TEMARIO = [
         numero: 4,
         titulo: 'El Poder Judicial. El Consejo General del Poder Judicial. El Tribunal Supremo. La organización judicial española',
         leyes: 'Constitución Española de 1978 (Título VI, arts. 117 a 127), Ley Orgánica 6/1985 del Poder Judicial (LOPJ)',
+        epigrafes: [
+          { id: 'b1-t4-e1', numero: 1, nombre: 'El Poder Judicial: principios constitucionales e independencia' },
+          { id: 'b1-t4-e2', numero: 2, nombre: 'El Consejo General del Poder Judicial (CGPJ)' },
+          { id: 'b1-t4-e3', numero: 3, nombre: 'El Tribunal Supremo y órganos jurisdiccionales' },
+          { id: 'b1-t4-e4', numero: 4, nombre: 'El Ministerio Fiscal' },
+        ],
       },
       {
         id: 'b1-t5',
@@ -49,6 +74,12 @@ export const BLOQUES_TEMARIO = [
         numero: 5,
         titulo: 'El Gobierno y la Administración. El Presidente, el Consejo de Ministros, designación, causas de cese y responsabilidad. Relaciones con las Cortes',
         leyes: 'Constitución Española de 1978 (Título IV y V), Ley 50/1997 del Gobierno',
+        epigrafes: [
+          { id: 'b1-t5-e1', numero: 1, nombre: 'El Gobierno: composición y principios' },
+          { id: 'b1-t5-e2', numero: 2, nombre: 'El Presidente del Gobierno y Consejo de Ministros' },
+          { id: 'b1-t5-e3', numero: 3, nombre: 'Designación, cese y responsabilidad del Gobierno' },
+          { id: 'b1-t5-e4', numero: 4, nombre: 'Relaciones entre el Gobierno y las Cortes Generales' },
+        ],
       },
       {
         id: 'b1-t6',
@@ -57,6 +88,11 @@ export const BLOQUES_TEMARIO = [
         numero: 6,
         titulo: 'El Gobierno Abierto: concepto y principios. La Agenda 2030 y los Objetivos de Desarrollo Sostenible',
         leyes: 'Alianza para el Gobierno Abierto (OGP), Agenda 2030 de la ONU, IV Plan de Gobierno Abierto de España',
+        epigrafes: [
+          { id: 'b1-t6-e1', numero: 1, nombre: 'Gobierno Abierto: concepto, principios y pilares' },
+          { id: 'b1-t6-e2', numero: 2, nombre: 'Planes de Gobierno Abierto en España' },
+          { id: 'b1-t6-e3', numero: 3, nombre: 'Agenda 2030 y los Objetivos de Desarrollo Sostenible (ODS)' },
+        ],
       },
       {
         id: 'b1-t7',
@@ -65,6 +101,12 @@ export const BLOQUES_TEMARIO = [
         numero: 7,
         titulo: 'La Ley 19/2013, de 9 de diciembre, de transparencia, acceso a la información pública y buen gobierno',
         leyes: 'Ley 19/2013, Consejo de Transparencia y Buen Gobierno (CTBG)',
+        epigrafes: [
+          { id: 'b1-t7-e1', numero: 1, nombre: 'Publicidad activa (Título I Ley 19/2013)' },
+          { id: 'b1-t7-e2', numero: 2, nombre: 'Derecho de acceso a la información pública y límites' },
+          { id: 'b1-t7-e3', numero: 3, nombre: 'Buen gobierno y régimen sancionador' },
+          { id: 'b1-t7-e4', numero: 4, nombre: 'Consejo de Transparencia y Buen Gobierno (CTBG)' },
+        ],
       },
       {
         id: 'b1-t8',
@@ -73,6 +115,12 @@ export const BLOQUES_TEMARIO = [
         numero: 8,
         titulo: 'La Administración General del Estado: órganos centrales, superiores y directivos, órganos territoriales y la Administración del Estado en el Exterior',
         leyes: 'Ley 40/2015 de Régimen Jurídico del Sector Público (arts. 54 a 80)',
+        epigrafes: [
+          { id: 'b1-t8-e1', numero: 1, nombre: 'AGE: Órganos centrales superiores (Ministros y Secretarios de Estado)' },
+          { id: 'b1-t8-e2', numero: 2, nombre: 'AGE: Órganos directivos (Subsecretarios y Directores Generales)' },
+          { id: 'b1-t8-e3', numero: 3, nombre: 'AGE: Órganos territoriales (Delegados y Subdelegados del Gobierno)' },
+          { id: 'b1-t8-e4', numero: 4, nombre: 'Administración General del Estado en el Exterior' },
+        ],
       },
       {
         id: 'b1-t9',
@@ -81,6 +129,12 @@ export const BLOQUES_TEMARIO = [
         numero: 9,
         titulo: 'La Organización territorial del Estado: las Comunidades Autónomas, distribución de competencias y Estatutos de Autonomía',
         leyes: 'Constitución Española de 1978 (Título VIII, arts. 137 a 158)',
+        epigrafes: [
+          { id: 'b1-t9-e1', numero: 1, nombre: 'Principios de organización territorial (Título VIII CE)' },
+          { id: 'b1-t9-e2', numero: 2, nombre: 'Estatutos de Autonomía y vías de acceso' },
+          { id: 'b1-t9-e3', numero: 3, nombre: 'Distribución de competencias Estado - CCAA (arts. 148 y 149 CE)' },
+          { id: 'b1-t9-e4', numero: 4, nombre: 'Control y financiación de las Comunidades Autónomas' },
+        ],
       },
       {
         id: 'b1-t10',
@@ -89,6 +143,12 @@ export const BLOQUES_TEMARIO = [
         numero: 10,
         titulo: 'La Administración local: entidades que la integran. La provincia, el municipio y la isla',
         leyes: 'Constitución Española de 1978 (arts. 140 a 142), Ley 7/1985 de Bases del Régimen Local (LRBRL)',
+        epigrafes: [
+          { id: 'b1-t10-e1', numero: 1, nombre: 'Entidades locales: autonomía y tipología' },
+          { id: 'b1-t10-e2', numero: 2, nombre: 'El Municipio: población, territorio y organización (Alcalde, Pleno)' },
+          { id: 'b1-t10-e3', numero: 3, nombre: 'La Provincia y las Islas' },
+          { id: 'b1-t10-e4', numero: 4, nombre: 'Competencias municipales y provinciales' },
+        ],
       },
       {
         id: 'b1-t11',
@@ -97,6 +157,12 @@ export const BLOQUES_TEMARIO = [
         numero: 11,
         titulo: 'La organización de la Unión Europea: Consejo Europeo, Consejo, Parlamento, Comisión y Tribunal de Justicia, y efectos de la integración europea sobre el Estado español',
         leyes: 'Tratado de la Unión Europea (TUE), Tratado de Funcionamiento de la UE (TFUE), art. 93 CE',
+        epigrafes: [
+          { id: 'b1-t11-e1', numero: 1, nombre: 'El Consejo Europeo y el Consejo de la Unión Europea' },
+          { id: 'b1-t11-e2', numero: 2, nombre: 'El Parlamento Europeo y la Comisión Europea' },
+          { id: 'b1-t11-e3', numero: 3, nombre: 'El Tribunal de Justicia de la Unión Europea (TJUE)' },
+          { id: 'b1-t11-e4', numero: 4, nombre: 'Fuentes del derecho de la UE y primacía en España' },
+        ],
       },
     ],
   },
@@ -115,6 +181,12 @@ export const BLOQUES_TEMARIO = [
         numero: 1,
         titulo: 'Atención al público y atención a personas con discapacidad. Servicios de información administrativa. Iniciativas, reclamaciones, quejas y peticiones',
         leyes: 'Real Decreto 208/1996, Real Decreto 951/2005, Real Decreto Legislativo 1/2013 (Discapacidad)',
+        epigrafes: [
+          { id: 'b2-t1-e1', numero: 1, nombre: 'Atención al público y a personas con discapacidad' },
+          { id: 'b2-t1-e2', numero: 2, nombre: 'Servicios de información administrativa (general y particular)' },
+          { id: 'b2-t1-e3', numero: 3, nombre: 'Quejas, sugerencias y reclamaciones (RD 951/2005)' },
+          { id: 'b2-t1-e4', numero: 4, nombre: 'El derecho de petición (LO 4/2001)' },
+        ],
       },
       {
         id: 'b2-t2',
@@ -123,6 +195,12 @@ export const BLOQUES_TEMARIO = [
         numero: 2,
         titulo: 'Concepto de documento, registro y archivo. Funciones del registro y del archivo. Clases de archivo y criterios de ordenación',
         leyes: 'Ley 16/1985 del Patrimonio Histórico Español, Ley 39/2015 (art. 16), RD 1708/2011 (Sistema de Archivos)',
+        epigrafes: [
+          { id: 'b2-t2-e1', numero: 1, nombre: 'Concepto y clases de documento administrativo' },
+          { id: 'b2-t2-e2', numero: 2, nombre: 'Funciones del Registro General de Apoderamientos y de Entrada/Salida' },
+          { id: 'b2-t2-e3', numero: 3, nombre: 'Clases de archivos: de gestión, central, intermedio e histórico' },
+          { id: 'b2-t2-e4', numero: 4, nombre: 'Criterios de ordenación y conservación documental' },
+        ],
       },
       {
         id: 'b2-t3',
@@ -131,6 +209,12 @@ export const BLOQUES_TEMARIO = [
         numero: 3,
         titulo: 'Administración electrónica y servicios al ciudadano: servicios telemáticos, oficinas integradas, ventanilla única empresarial y Punto de Acceso General',
         leyes: 'Ley 39/2015, Ley 40/2015, Real Decreto 203/2021 (Reglamento de actuación telemática del sector público)',
+        epigrafes: [
+          { id: 'b2-t3-e1', numero: 1, nombre: 'Administración electrónica y servicios telemáticos' },
+          { id: 'b2-t3-e2', numero: 2, nombre: 'Oficinas de asistencia en materia de registros' },
+          { id: 'b2-t3-e3', numero: 3, nombre: 'Punto de Acceso General electrónico (PAGe) y sede electrónica' },
+          { id: 'b2-t3-e4', numero: 4, nombre: 'Ventanilla única y carpetas ciudadanas' },
+        ],
       },
       {
         id: 'b2-t4',
@@ -139,6 +223,12 @@ export const BLOQUES_TEMARIO = [
         numero: 4,
         titulo: 'La protección de datos personales y su régimen jurídico: responsable y encargado del tratamiento, autoridad de protección de datos y derechos digitales',
         leyes: 'Reglamento General de Protección de Datos (RGPD UE 2016/679), Ley Orgánica 3/2018 (LOPDGDD)',
+        epigrafes: [
+          { id: 'b2-t4-e1', numero: 1, nombre: 'Principios relativos al tratamiento de datos personales' },
+          { id: 'b2-t4-e2', numero: 2, nombre: 'Responsable, encargado del tratamiento y delegado de protección de datos (DPD)' },
+          { id: 'b2-t4-e3', numero: 3, nombre: 'Derechos de los interesados (acceso, rectificación, supresión, oposición)' },
+          { id: 'b2-t4-e4', numero: 4, nombre: 'La Agencia Española de Protección de Datos (AEPD) y derechos digitales' },
+        ],
       },
     ],
   },
@@ -157,6 +247,12 @@ export const BLOQUES_TEMARIO = [
         numero: 1,
         titulo: 'Las fuentes del derecho administrativo: jerarquía, la ley, decreto-ley y decreto legislativo, el reglamento',
         leyes: 'Constitución Española (arts. 9.3, 81 a 86, 97), Código Civil (art. 1), Ley 39/2015 (Título VI), Ley 50/1997',
+        epigrafes: [
+          { id: 'b3-t1-e1', numero: 1, nombre: 'Las fuentes del derecho administrativo y el principio de jerarquía' },
+          { id: 'b3-t1-e2', numero: 2, nombre: 'La ley: leyes orgánicas y ordinarias' },
+          { id: 'b3-t1-e3', numero: 3, nombre: 'Normas del Gobierno con rango de ley: Real Decreto-ley y Real Decreto Legislativo' },
+          { id: 'b3-t1-e4', numero: 4, nombre: 'El reglamento: potestad reglamentaria, clases y límites' },
+        ],
       },
       {
         id: 'b3-t2',
@@ -165,6 +261,12 @@ export const BLOQUES_TEMARIO = [
         numero: 2,
         titulo: 'El acto administrativo: concepto, clases y elementos. Eficacia, validez, motivación y notificación',
         leyes: 'Ley 39/2015 del Procedimiento Administrativo Común (arts. 34 a 52)',
+        epigrafes: [
+          { id: 'b3-t2-e1', numero: 1, nombre: 'El acto administrativo: concepto, clases y elementos' },
+          { id: 'b3-t2-e2', numero: 2, nombre: 'Eficacia del acto: ejecutividad y suspensión' },
+          { id: 'b3-t2-e3', numero: 3, nombre: 'Validez e invalidez: nulidad de pleno derecho y anulabilidad' },
+          { id: 'b3-t2-e4', numero: 4, nombre: 'La motivación, notificación y publicación de los actos' },
+        ],
       },
       {
         id: 'b3-t3',
@@ -173,6 +275,14 @@ export const BLOQUES_TEMARIO = [
         numero: 3,
         titulo: 'Procedimiento administrativo común (Ley 39/2015) y régimen jurídico del sector público (Ley 40/2015): iniciación, ordenación, instrucción y terminación; revisión de oficio, recursos y contencioso-administrativo',
         leyes: 'Ley 39/2015 (arts. 53 a 126), Ley 40/2015 (arts. 15 a 24), Ley 29/1998 de la Jurisdicción Contencioso-Administrativa',
+        epigrafes: [
+          { id: 'b3-t3-e1', numero: 1, nombre: 'Fases del procedimiento: iniciación y ordenación' },
+          { id: 'b3-t3-e2', numero: 2, nombre: 'Fases del procedimiento: instrucción y terminación' },
+          { id: 'b3-t3-e3', numero: 3, nombre: 'El silencio administrativo: positivo y negativo' },
+          { id: 'b3-t3-e4', numero: 4, nombre: 'Revisión de oficio de los actos administrativos' },
+          { id: 'b3-t3-e5', numero: 5, nombre: 'Recursos administrativos: alzada, reposición y extraordinario de revisión' },
+          { id: 'b3-t3-e6', numero: 6, nombre: 'La jurisdicción contencioso-administrativa' },
+        ],
       },
       {
         id: 'b3-t4',
@@ -181,6 +291,13 @@ export const BLOQUES_TEMARIO = [
         numero: 4,
         titulo: 'Los contratos del sector público: concepto y clases, preparación, adjudicación, cumplimiento y extinción',
         leyes: 'Ley 9/2017 de Contratos del Sector Público (LCSP)',
+        epigrafes: [
+          { id: 'b3-t4-e1', numero: 1, nombre: 'Ámbito de aplicación y tipos de contratos del sector público' },
+          { id: 'b3-t4-e2', numero: 2, nombre: 'Contratos menores y contratos sujetos a regulación armonizada (SARA)' },
+          { id: 'b3-t4-e3', numero: 3, nombre: 'Preparación de contratos: pliegos de cláusulas y prescripciones técnicas' },
+          { id: 'b3-t4-e4', numero: 4, nombre: 'Procedimientos de adjudicación (abierto, restringido, licitación con negociación)' },
+          { id: 'b3-t4-e5', numero: 5, nombre: 'Efectos, cumplimiento, modificación y extinción de los contratos' },
+        ],
       },
       {
         id: 'b3-t5',
@@ -189,6 +306,12 @@ export const BLOQUES_TEMARIO = [
         numero: 5,
         titulo: 'Procedimientos y formas de la actividad administrativa: limitación, arbitral, servicio público y fomento',
         leyes: 'Ley 38/2003 General de Subvenciones, Ley 40/2015, Ley de Expropiación Forzosa de 1954',
+        epigrafes: [
+          { id: 'b3-t5-e1', numero: 1, nombre: 'Actividad de limitación, policía y autorizaciones' },
+          { id: 'b3-t5-e2', numero: 2, nombre: 'Actividad de servicio público y formas de gestión' },
+          { id: 'b3-t5-e3', numero: 3, nombre: 'Actividad de fomento y régimen de subvenciones públicas (Ley 38/2003)' },
+          { id: 'b3-t5-e4', numero: 4, nombre: 'La expropiación forzosa: procedimiento general y de urgencia' },
+        ],
       },
       {
         id: 'b3-t6',
@@ -197,6 +320,12 @@ export const BLOQUES_TEMARIO = [
         numero: 6,
         titulo: 'La responsabilidad patrimonial de las Administraciones públicas: concepto, clases, requisitos y efectos',
         leyes: 'Constitución Española (art. 106.2), Ley 40/2015 (arts. 32 a 37), Ley 39/2015 (arts. 67, 81, 91 y 92)',
+        epigrafes: [
+          { id: 'b3-t6-e1', numero: 1, nombre: 'Principios y requisitos de la responsabilidad patrimonial' },
+          { id: 'b3-t6-e2', numero: 2, nombre: 'Responsabilidad por actos legislativos y de la Administración de Justicia' },
+          { id: 'b3-t6-e3', numero: 3, nombre: 'Procedimiento general y abreviado de reclamación' },
+          { id: 'b3-t6-e4', numero: 4, nombre: 'Indemnización, cálculo y acción de repetición' },
+        ],
       },
       {
         id: 'b3-t7',
@@ -205,6 +334,12 @@ export const BLOQUES_TEMARIO = [
         numero: 7,
         titulo: 'Políticas de igualdad y contra la violencia de género, no discriminación de las personas LGTBI, discapacidad y dependencia',
         leyes: 'LO 3/2007 (Igualdad efectiva), LO 1/2004 (Violencia de Género), Ley 4/2023 (LGTBI), Ley 39/2006 (Dependencia)',
+        epigrafes: [
+          { id: 'b3-t7-e1', numero: 1, nombre: 'Ley Orgánica 3/2007 para la igualdad efectiva de mujeres y hombres' },
+          { id: 'b3-t7-e2', numero: 2, nombre: 'Medidas de protección integral contra la violencia de género (LO 1/2004)' },
+          { id: 'b3-t7-e3', numero: 3, nombre: 'Igualdad de trato y no discriminación LGTBI (Ley 4/2023)' },
+          { id: 'b3-t7-e4', numero: 4, nombre: 'Promoción de la autonomía personal y atención a personas en situación de dependencia' },
+        ],
       },
     ],
   },
@@ -223,6 +358,11 @@ export const BLOQUES_TEMARIO = [
         numero: 1,
         titulo: 'El personal al servicio de las Administraciones públicas: concepto y clases, EBEP y Registro Central de Personal',
         leyes: 'Real Decreto Legislativo 5/2015 (TREBEP, arts. 8 a 13), RD 379/2024 (Registro Central de Personal)',
+        epigrafes: [
+          { id: 'b4-t1-e1', numero: 1, nombre: 'Clases de personal empleado público según el TREBEP' },
+          { id: 'b4-t1-e2', numero: 2, nombre: 'Personal directivo profesional' },
+          { id: 'b4-t1-e3', numero: 3, nombre: 'Estructura y funcionamiento del Registro Central de Personal' },
+        ],
       },
       {
         id: 'b4-t2',
@@ -231,6 +371,12 @@ export const BLOQUES_TEMARIO = [
         numero: 2,
         titulo: 'Selección de personal y su conexión con la Oferta de Empleo Público. Acceso al empleo público y provisión de las personas con discapacidad',
         leyes: 'TREBEP (arts. 55 a 62 y art. 70 OEP), Real Decreto 364/1995, Real Decreto 2271/2004 (Discapacidad)',
+        epigrafes: [
+          { id: 'b4-t2-e1', numero: 1, nombre: 'La Oferta de Empleo Público (OEP): concepto y plazos' },
+          { id: 'b4-t2-e2', numero: 2, nombre: 'Principios rectores de acceso al empleo público' },
+          { id: 'b4-t2-e3', numero: 3, nombre: 'Sistemas selectivos: oposición, concurso-oposición y concurso' },
+          { id: 'b4-t2-e4', numero: 4, nombre: 'Acceso al empleo público de personas con discapacidad' },
+        ],
       },
       {
         id: 'b4-t3',
@@ -239,6 +385,12 @@ export const BLOQUES_TEMARIO = [
         numero: 3,
         titulo: 'Funcionarios de carrera e interinos. La selección de los funcionarios',
         leyes: 'TREBEP (art. 9 funcionarios de carrera, art. 10 interinos y reforma Ley 20/2021 de temporalidad)',
+        epigrafes: [
+          { id: 'b4-t3-e1', numero: 1, nombre: 'Funcionarios de carrera: concepto, reserva de funciones y nombramiento' },
+          { id: 'b4-t3-e2', numero: 2, nombre: 'Funcionarios interinos: supuestos de nombramiento' },
+          { id: 'b4-t3-e3', numero: 3, nombre: 'Régimen de temporalidad y causas de cese del interino' },
+          { id: 'b4-t3-e4', numero: 4, nombre: 'Órganos de selección y garantías del procedimiento' },
+        ],
       },
       {
         id: 'b4-t4',
@@ -247,6 +399,14 @@ export const BLOQUES_TEMARIO = [
         numero: 4,
         titulo: 'Adquisición y pérdida de la condición de funcionario. Situaciones administrativas: supuestos y efectos',
         leyes: 'TREBEP (arts. 63 a 68 y arts. 85 a 92)',
+        epigrafes: [
+          { id: 'b4-t4-e1', numero: 1, nombre: 'Requisitos para la adquisición de la condición de funcionario' },
+          { id: 'b4-t4-e2', numero: 2, nombre: 'Pérdida de la condición de funcionario y rehabilitación' },
+          { id: 'b4-t4-e3', numero: 3, nombre: 'Servicio activo y servicios especiales' },
+          { id: 'b4-t4-e4', numero: 4, nombre: 'Servicio en otras Administraciones públicas' },
+          { id: 'b4-t4-e5', numero: 5, nombre: 'Excedencias: voluntaria por interés particular, cuidado de familiares y violencia de género' },
+          { id: 'b4-t4-e6', numero: 6, nombre: 'Suspensión de funciones (provisional y firme)' },
+        ],
       },
       {
         id: 'b4-t5',
@@ -255,6 +415,13 @@ export const BLOQUES_TEMARIO = [
         numero: 5,
         titulo: 'Provisión de puestos de trabajo. Deberes y derechos, carrera administrativa y promoción interna',
         leyes: 'TREBEP (arts. 14 a 54, arts. 78 a 84), Real Decreto 364/1995 (Reglamento de Provisión)',
+        epigrafes: [
+          { id: 'b4-t5-e1', numero: 1, nombre: 'Sistemas de provisión: concurso de méritos y libre designación' },
+          { id: 'b4-t5-e2', numero: 2, nombre: 'Movilidad de funcionarios: comisiones de servicios y adscripción provisional' },
+          { id: 'b4-t5-e3', numero: 3, nombre: 'Carrera profesional y promoción interna vertical y horizontal' },
+          { id: 'b4-t5-e4', numero: 4, nombre: 'Derechos individuales y colectivos de los empleados públicos' },
+          { id: 'b4-t5-e5', numero: 5, nombre: 'Código de conducta y principios éticos' },
+        ],
       },
       {
         id: 'b4-t6',
@@ -263,6 +430,13 @@ export const BLOQUES_TEMARIO = [
         numero: 6,
         titulo: 'Las incompatibilidades. Régimen disciplinario: faltas, sanciones y procedimiento',
         leyes: 'Ley 53/1984 de Incompatibilidades, TREBEP (Título VII, arts. 93 a 98), RD 33/1986',
+        epigrafes: [
+          { id: 'b4-t6-e1', numero: 1, nombre: 'Régimen de incompatibilidades en el sector público (Ley 53/1984)' },
+          { id: 'b4-t6-e2', numero: 2, nombre: 'Incompatibilidad con actividades privadas' },
+          { id: 'b4-t6-e3', numero: 3, nombre: 'Faltas disciplinarias: muy graves, graves y leves' },
+          { id: 'b4-t6-e4', numero: 4, nombre: 'Sanciones disciplinarias y prescripción' },
+          { id: 'b4-t6-e5', numero: 5, nombre: 'Procedimiento disciplinario y medidas provisionales' },
+        ],
       },
       {
         id: 'b4-t7',
@@ -271,6 +445,12 @@ export const BLOQUES_TEMARIO = [
         numero: 7,
         titulo: 'El régimen de la Seguridad Social de los funcionarios: la MUFACE y las clases pasivas',
         leyes: 'Real Decreto Legislativo 4/2000 (MUFACE), Real Decreto Legislativo 670/1987 (Clases Pasivas del Estado)',
+        epigrafes: [
+          { id: 'b4-t7-e1', numero: 1, nombre: 'Régimen especial de la Seguridad Social de los funcionarios civiles' },
+          { id: 'b4-t7-e2', numero: 2, nombre: 'La Mutualidad General de Funcionarios Civiles del Estado (MUFACE)' },
+          { id: 'b4-t7-e3', numero: 3, nombre: 'Acción protectora de MUFACE: asistencia sanitaria y subsidios' },
+          { id: 'b4-t7-e4', numero: 4, nombre: 'Régimen de Clases Pasivas del Estado: pensiones de jubilación y viudedad' },
+        ],
       },
       {
         id: 'b4-t8',
@@ -279,6 +459,12 @@ export const BLOQUES_TEMARIO = [
         numero: 8,
         titulo: 'El personal laboral de la AGE: selección, derechos, deberes e incompatibilidades. El IV Convenio único',
         leyes: 'TREBEP (art. 11), Real Decreto Legislativo 2/2015 (Estatuto de los Trabajadores), IV Convenio Único AGE',
+        epigrafes: [
+          { id: 'b4-t8-e1', numero: 1, nombre: 'Régimen jurídico del personal laboral en la AGE' },
+          { id: 'b4-t8-e2', numero: 2, nombre: 'El IV Convenio Único para el personal laboral de la AGE: grupos y familias' },
+          { id: 'b4-t8-e3', numero: 3, nombre: 'Selección y contratación del personal laboral' },
+          { id: 'b4-t8-e4', numero: 4, nombre: 'Modificación, suspensión y extinción del contrato de trabajo laboral' },
+        ],
       },
       {
         id: 'b4-t9',
@@ -287,6 +473,12 @@ export const BLOQUES_TEMARIO = [
         numero: 9,
         titulo: 'El régimen de la Seguridad Social del personal laboral: acción protectora y prestaciones',
         leyes: 'Real Decreto Legislativo 8/2015 (Texto Refundido de la Ley General de la Seguridad Social, TRLGSS)',
+        epigrafes: [
+          { id: 'b4-t9-e1', numero: 1, nombre: 'Estructura del Sistema de la Seguridad Social: Régimen General' },
+          { id: 'b4-t9-e2', numero: 2, nombre: 'Afiliación, altas, bajas y cotización' },
+          { id: 'b4-t9-e3', numero: 3, nombre: 'Acción protectora: incapacidad temporal y permanente' },
+          { id: 'b4-t9-e4', numero: 4, nombre: 'Jubilación, desempleo y prestaciones por muerte y supervivencia' },
+        ],
       },
     ],
   },
@@ -305,6 +497,12 @@ export const BLOQUES_TEMARIO = [
         numero: 1,
         titulo: 'El presupuesto: concepto, principios presupuestarios, ciclo presupuestario y presupuesto por programas',
         leyes: 'Constitución Española (art. 134), Ley 47/2003 General Presupuestaria (LGP, arts. 26 a 31)',
+        epigrafes: [
+          { id: 'b5-t1-e1', numero: 1, nombre: 'Concepto y naturaleza jurídica del presupuesto' },
+          { id: 'b5-t1-e2', numero: 2, nombre: 'Principios presupuestarios constitucionales y de la LGP' },
+          { id: 'b5-t1-e3', numero: 3, nombre: 'El ciclo presupuestario: elaboración, aprobación, ejecución y control' },
+          { id: 'b5-t1-e4', numero: 4, nombre: 'El presupuesto por programas y objetivos' },
+        ],
       },
       {
         id: 'b5-t2',
@@ -313,6 +511,12 @@ export const BLOQUES_TEMARIO = [
         numero: 2,
         titulo: 'El presupuesto del Estado: estructura, clasificación de créditos, gastos plurianuales y modificaciones presupuestarias',
         leyes: 'Ley 47/2003 General Presupuestaria (arts. 39 a 60)',
+        epigrafes: [
+          { id: 'b5-t2-e1', numero: 1, nombre: 'Estructura de los Presupuestos Generales del Estado' },
+          { id: 'b5-t2-e2', numero: 2, nombre: 'Clasificaciones presupuestarias: orgánica, funcional por programas y económica' },
+          { id: 'b5-t2-e3', numero: 3, nombre: 'Gastos plurianuales y compromisos de gasto futuro' },
+          { id: 'b5-t2-e4', numero: 4, nombre: 'Modificaciones presupuestarias: transferencias, créditos extraordinarios y suplementos' },
+        ],
       },
       {
         id: 'b5-t3',
@@ -321,6 +525,12 @@ export const BLOQUES_TEMARIO = [
         numero: 3,
         titulo: 'Ejecución del presupuesto de gasto y control: fase administrativa y contable, ordenación del pago, control del gasto y Tribunal de Cuentas',
         leyes: 'LGP (arts. 73 a 77 y Título VI Control Interno - IGAE), LO 2/1982 y Ley 7/1988 del Tribunal de Cuentas',
+        epigrafes: [
+          { id: 'b5-t3-e1', numero: 1, nombre: 'Procedimiento de gestión del gasto: fases A, D, O y P' },
+          { id: 'b5-t3-e2', numero: 2, nombre: 'Ordenación y materialización del pago' },
+          { id: 'b5-t3-e3', numero: 3, nombre: 'Control interno del gasto: la Intervención General de la Administración del Estado (IGAE)' },
+          { id: 'b5-t3-e4', numero: 4, nombre: 'Control externo: el Tribunal de Cuentas' },
+        ],
       },
       {
         id: 'b5-t4',
@@ -329,6 +539,12 @@ export const BLOQUES_TEMARIO = [
         numero: 4,
         titulo: 'Retribuciones e indemnizaciones. Nóminas: estructura, sueldos, trienios, pagas extraordinarias, devengo y pago',
         leyes: 'TREBEP (arts. 22 a 30), Leyes anuales de Presupuestos Generales del Estado, Real Decreto 462/2002',
+        epigrafes: [
+          { id: 'b5-t4-e1', numero: 1, nombre: 'Retribuciones básicas: sueldo, trienios y pagas extraordinarias' },
+          { id: 'b5-t4-e2', numero: 2, nombre: 'Retribuciones complementarias: complemento de destino y específico' },
+          { id: 'b5-t4-e3', numero: 3, nombre: 'Indemnizaciones por razón del servicio (RD 462/2002)' },
+          { id: 'b5-t4-e4', numero: 4, nombre: 'La nómina de los empleados públicos: devengo, deducciones y liquidación' },
+        ],
       },
       {
         id: 'b5-t5',
@@ -337,6 +553,11 @@ export const BLOQUES_TEMARIO = [
         numero: 5,
         titulo: 'Gastos, pagos, anticipos de caja fija y pagos «a justificar». Gestión económica y financiera de contratos y subvenciones',
         leyes: 'Ley 47/2003 General Presupuestaria (arts. 78 y 79), Real Decreto 640/1987 (Anticipos de Caja Fija)',
+        epigrafes: [
+          { id: 'b5-t5-e1', numero: 1, nombre: 'Pagos a justificar: concepto, supuestos y rendición de cuentas' },
+          { id: 'b5-t5-e2', numero: 2, nombre: 'Anticipos de caja fija: regulación, límites y reposición de fondos' },
+          { id: 'b5-t5-e3', numero: 3, nombre: 'Cuentas bancarias de los órganos de la AGE y Tesoro Público' },
+        ],
       },
       {
         id: 'b5-t6',
@@ -345,6 +566,12 @@ export const BLOQUES_TEMARIO = [
         numero: 6,
         titulo: 'Gestión económica y financiera de los contratos del sector público y de las subvenciones',
         leyes: 'Ley 9/2017 de Contratos del Sector Público, Ley 38/2003 General de Subvenciones, LGP',
+        epigrafes: [
+          { id: 'b5-t6-e1', numero: 1, nombre: 'Gestión contable y fiscalización previa de los contratos administrativos' },
+          { id: 'b5-t6-e2', numero: 2, nombre: 'Abonos a cuenta, certificaciones de obra y liquidación de contratos' },
+          { id: 'b5-t6-e3', numero: 3, nombre: 'Gestión económica del gasto en subvenciones: concesión y pago' },
+          { id: 'b5-t6-e4', numero: 4, nombre: 'Justificación, reintegro y control financiero de subvenciones' },
+        ],
       },
     ],
   },
@@ -363,6 +590,12 @@ export const BLOQUES_TEMARIO = [
         numero: 1,
         titulo: 'Informática básica: hardware y software, almacenamiento, sistemas operativos y seguridad informática',
         leyes: 'Arquitectura Von Neumann, Esquema Nacional de Seguridad (ENS - RD 311/2022), Ciberseguridad',
+        epigrafes: [
+          { id: 'b6-t1-e1', numero: 1, nombre: 'Hardware: CPU, memoria RAM, buses y periféricos' },
+          { id: 'b6-t1-e2', numero: 2, nombre: 'Software de base y software de aplicación' },
+          { id: 'b6-t1-e3', numero: 3, nombre: 'Dispositivos y formatos de almacenamiento' },
+          { id: 'b6-t1-e4', numero: 4, nombre: 'Seguridad informática y Esquema Nacional de Seguridad (ENS)' },
+        ],
       },
       {
         id: 'b6-t2',
@@ -371,6 +604,11 @@ export const BLOQUES_TEMARIO = [
         numero: 2,
         titulo: 'Introducción al sistema operativo: el entorno Windows, ventanas, iconos, menús y escritorio',
         leyes: 'Sistema Operativo Microsoft Windows 11 / Windows 10 para administraciones públicas',
+        epigrafes: [
+          { id: 'b6-t2-e1', numero: 1, nombre: 'El entorno Windows: escritorio, barra de tareas y centro de notificaciones' },
+          { id: 'b6-t2-e2', numero: 2, nombre: 'Gestión de ventanas, iconos, accesos directos y menús contextuales' },
+          { id: 'b6-t2-e3', numero: 3, nombre: 'Configuración de Windows, panel de control y accesibilidad' },
+        ],
       },
       {
         id: 'b6-t3',
@@ -379,6 +617,12 @@ export const BLOQUES_TEMARIO = [
         numero: 3,
         titulo: 'El explorador de Windows: carpetas, archivos, búsqueda y herramientas del sistema',
         leyes: 'Sistemas de archivos (NTFS, FAT32), gestión de permisos, árbol de directorios y accesos directos',
+        epigrafes: [
+          { id: 'b6-t3-e1', numero: 1, nombre: 'Estructura de carpetas, directorios y rutas de acceso' },
+          { id: 'b6-t3-e2', numero: 2, nombre: 'Operaciones con archivos: copiar, mover, renombrar y atributos' },
+          { id: 'b6-t3-e3', numero: 3, nombre: 'Búsquedas avanzadas y filtros en el Explorador' },
+          { id: 'b6-t3-e4', numero: 4, nombre: 'Papelera de reciclaje, compresión ZIP y herramientas de disco' },
+        ],
       },
       {
         id: 'b6-t4',
@@ -387,6 +631,12 @@ export const BLOQUES_TEMARIO = [
         numero: 4,
         titulo: 'Procesadores de texto: Word 365',
         leyes: 'Microsoft Word 365: plantillas, tabulaciones, encabezados, tablas, correspondencia y estilos',
+        epigrafes: [
+          { id: 'b6-t4-e1', numero: 1, nombre: 'Formato de fuente, párrafo, sangrías y tabulaciones' },
+          { id: 'b6-t4-e2', numero: 2, nombre: 'Configuración de página, saltos de sección, encabezados y pies' },
+          { id: 'b6-t4-e3', numero: 3, nombre: 'Tablas, estilos rápidos y tablas de contenido (índices)' },
+          { id: 'b6-t4-e4', numero: 4, nombre: 'Combinación de correspondencia y plantillas' },
+        ],
       },
       {
         id: 'b6-t5',
@@ -395,6 +645,12 @@ export const BLOQUES_TEMARIO = [
         numero: 5,
         titulo: 'Hojas de cálculo: Excel 365',
         leyes: 'Microsoft Excel 365: fórmulas matriciales, BUSCARX/BUSCARV, referencias relativas/absolutas ($), tablas dinámicas',
+        epigrafes: [
+          { id: 'b6-t5-e1', numero: 1, nombre: 'Estructura de libros, hojas, celdas y tipos de datos' },
+          { id: 'b6-t5-e2', numero: 2, nombre: 'Referencias relativas, absolutas ($) y mixtas' },
+          { id: 'b6-t5-e3', numero: 3, nombre: 'Fórmulas y funciones clave (SUMA, PROMEDIO, SI, BUSCARV, BUSCARX, CONTAR.SI)' },
+          { id: 'b6-t5-e4', numero: 4, nombre: 'Tablas dinámicas, filtros avanzados y gráficos' },
+        ],
       },
       {
         id: 'b6-t6',
@@ -403,6 +659,12 @@ export const BLOQUES_TEMARIO = [
         numero: 6,
         titulo: 'Bases de datos: Access 365',
         leyes: 'Microsoft Access 365: tablas, claves primarias/externas, relaciones 1 a varios, consultas, formularios e informes',
+        epigrafes: [
+          { id: 'b6-t6-e1', numero: 1, nombre: 'Tablas, tipos de campo, propiedades y clave principal' },
+          { id: 'b6-t6-e2', numero: 2, nombre: 'Relaciones entre tablas e integridad referencial' },
+          { id: 'b6-t6-e3', numero: 3, nombre: 'Consultas de selección, criterios y consultas de acción' },
+          { id: 'b6-t6-e4', numero: 4, nombre: 'Formularios e informes' },
+        ],
       },
       {
         id: 'b6-t7',
@@ -411,6 +673,12 @@ export const BLOQUES_TEMARIO = [
         numero: 7,
         titulo: 'Correo electrónico: Outlook 365',
         leyes: 'Microsoft Outlook 365: protocolos POP3, IMAP, SMTP, gestión de reglas, carpetas, firmas y calendario',
+        epigrafes: [
+          { id: 'b6-t7-e1', numero: 1, nombre: 'Gestión y redacción de correo: CC, CCO, firmas y adjuntos' },
+          { id: 'b6-t7-e2', numero: 2, nombre: 'Protocolos de correo electrónico (POP3, IMAP, SMTP, Exchange)' },
+          { id: 'b6-t7-e3', numero: 3, nombre: 'Carpetas, reglas de mensaje y filtros de correo no deseado' },
+          { id: 'b6-t7-e4', numero: 4, nombre: 'Calendario, citas, reuniones y gestión de tareas' },
+        ],
       },
       {
         id: 'b6-t8',
@@ -419,10 +687,17 @@ export const BLOQUES_TEMARIO = [
         numero: 8,
         titulo: 'La Red Internet: origen, protocolos y navegadores',
         leyes: 'Protocolos de red TCP/IP, DNS, HTTP/HTTPS, certificados digitales SSL/TLS, navegadores web y cookies',
+        epigrafes: [
+          { id: 'b6-t8-e1', numero: 1, nombre: 'Conceptos de redes, modelo TCP/IP y direccionamiento IP' },
+          { id: 'b6-t8-e2', numero: 2, nombre: 'Servicio de nombres de dominio (DNS) y URLs' },
+          { id: 'b6-t8-e3', numero: 3, nombre: 'Navegación web, protocolos HTTP/HTTPS y cookies' },
+          { id: 'b6-t8-e4', numero: 4, nombre: 'Certificados digitales, firma electrónica y sedes seguras' },
+        ],
       },
     ],
   },
 ];
+
 
 // Banco exhaustivo de preguntas reales con rigor legislativo oficial del INAP y legislación española
 export const BANCO_PREGUNTAS_REALES = [
@@ -1319,16 +1594,19 @@ export const BANCO_PREGUNTAS_REALES = [
   },
 ];
 
-// Función para obtener preguntas filtradas según la selección de temas del usuario
-export function getPreguntasPorSeleccion({ selectedTopicIds = [], numPreguntas = 10 }) {
+// Función para obtener preguntas filtradas según la selección de temas y apartados del usuario
+export function getPreguntasPorSeleccion({ selectedTopicIds = [], selectedEpigrafeIds = [], numPreguntas = 10 }) {
   let pool = [];
 
-  if (!selectedTopicIds || selectedTopicIds.length === 0) {
+  if ((!selectedTopicIds || selectedTopicIds.length === 0) && (!selectedEpigrafeIds || selectedEpigrafeIds.length === 0)) {
     // Si no ha seleccionado ninguno específico, usar todo el banco
     pool = [...BANCO_PREGUNTAS_REALES];
   } else {
     // Filtrar por los IDs de temas seleccionados (ej: 'b1-t1', 'b3-t3')
-    pool = BANCO_PREGUNTAS_REALES.filter((p) => selectedTopicIds.includes(p.temaId));
+    pool = BANCO_PREGUNTAS_REALES.filter((p) => {
+      const matchTopic = selectedTopicIds.includes(p.temaId);
+      return matchTopic;
+    });
 
     // Si por alguna razón la selección no tiene suficientes preguntas exactas en el banco estático,
     // completar con preguntas de los mismos bloques seleccionados
@@ -1376,13 +1654,36 @@ export function getPreguntasPorSeleccion({ selectedTopicIds = [], numPreguntas =
   return resultado;
 }
 
+// Obtener un tema por su ID
+export function getTemaById(temaId) {
+  for (const b of BLOQUES_TEMARIO) {
+    const t = b.temas.find((item) => item.id === temaId);
+    if (t) return { ...t, bloqueNombre: b.nombre, bloqueNumeroRomano: b.numeroRomano };
+  }
+  return null;
+}
+
+// Obtener un epígrafe por su ID
+export function getEpigrafeById(epigrafeId) {
+  for (const b of BLOQUES_TEMARIO) {
+    for (const t of b.temas) {
+      const e = t.epigrafes?.find((item) => item.id === epigrafeId);
+      if (e) return { ...e, temaId: t.id, temaNumero: t.numero, temaTitulo: t.titulo, bloqueId: b.id };
+    }
+  }
+  return null;
+}
+
 // Resumen del temario para visualización rápida
 export const RESUMEN_TEMARIO = {
   totalBloques: BLOQUES_TEMARIO.length,
   totalTemas: BLOQUES_TEMARIO.reduce((acc, b) => acc + b.temas.length, 0),
+  totalEpigrafes: BLOQUES_TEMARIO.reduce((acc, b) => acc + b.temas.reduce((x, y) => x + (y.epigrafes?.length || 0), 0), 0),
   bloques: BLOQUES_TEMARIO.map((b) => ({
     id: b.id,
     nombre: b.nombre,
     temasCount: b.temas.length,
+    epigrafesCount: b.temas.reduce((acc, t) => acc + (t.epigrafes?.length || 0), 0),
   })),
 };
+

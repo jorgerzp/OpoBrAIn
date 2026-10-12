@@ -29,7 +29,7 @@ import { useTestStore } from '../store/useTestStore';
 import { TopicSelect } from './TopicSelect';
 import { BloqueTemaSelector } from './BloqueTemaSelector';
 import { TestConfigModal } from './TestConfigModal';
-import { BLOQUES_TEMARIO } from '../services/temarioData';
+import { BLOQUES_TEMARIO, getTemaById, getEpigrafeById } from '../services/temarioData';
 import { statsService } from '../services/statsService';
 
 export const Dashboard = () => {
@@ -40,12 +40,24 @@ export const Dashboard = () => {
 
   // Temas seleccionados (IDs como 'b1-t1', 'b1-t2', etc.)
   const [selectedTopicIds, setSelectedTopicIds] = useState(['b1-t1']);
-  const [loadingMode, setLoadingMode] = useState(null); // 'oficiales' | 'generar-tema' | 'repaso'
+  // Apartados / Bloques específicos seleccionados dentro de los temas (IDs como 'b1-t1-e1')
+  const [selectedEpigrafeIds, setSelectedEpigrafeIds] = useState([
+    'b1-t1-e1', 'b1-t1-e2', 'b1-t1-e3', 'b1-t1-e4', 'b1-t1-e5', 'b1-t1-e6'
+  ]);
+  const [loadingMode, setLoadingMode] = useState(null); // 'oficiales' | 'generar-tema' | 'custom-test' | 'repaso'
   const [showStats, setShowStats] = useState(false);
   
   // Modales de flujo
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showFullSelectorModal, setShowFullSelectorModal] = useState(false);
+
+  // Sincronizar selección de temas y apartados específicos
+  const handleSelectionChange = (newTopics, newEpigrafes) => {
+    setSelectedTopicIds(newTopics);
+    if (newEpigrafes !== undefined) {
+      setSelectedEpigrafeIds(newEpigrafes);
+    }
+  };
 
   // Bloquear el scroll de fondo y permitir cerrar con tecla Escape o backdrop
   useEffect(() => {
@@ -84,30 +96,74 @@ export const Dashboard = () => {
     }
   };
 
-  // 2. Iniciar test configurado (Paso 2: con número de preguntas y tiempo seleccionados)
-  const handleStartCustomTest = async ({ numPreguntas, isTimed, timeLimitMinutes, selectedTopicIds: topics }) => {
+  // 2. Iniciar test configurado (Paso 2: con número de preguntas, tiempo y modo de generación)
+  const handleStartCustomTest = async ({ 
+    numPreguntas, 
+    isTimed, 
+    timeLimitMinutes, 
+    selectedTopicIds: topics, 
+    selectedEpigrafeIds: epigrafes,
+    modoGeneracion = 'ia'
+  }) => {
+    const idsToUse = topics && topics.length > 0 ? topics : selectedTopicIds;
+    const epigrafesToUse = epigrafes && epigrafes.length > 0 ? epigrafes : selectedEpigrafeIds;
+
     try {
-      setLoadingMode('custom-test');
-      const idsToUse = topics && topics.length > 0 ? topics : selectedTopicIds;
-      
-      // Obtener preguntas reales basadas estrictamente en los bloques y temas seleccionados
-      const questions = api.getPreguntasPorSeleccion({
-        selectedTopicIds: idsToUse,
-        numPreguntas,
-      });
+      if (modoGeneracion === 'ia') {
+        setLoadingMode('generar-tema');
+        
+        // Obtener el tema principal seleccionado
+        const temaObj = getTemaById(idsToUse[0]) || { titulo: 'Temario Oficial C1 AGE', bloqueNombre: 'C1' };
+        
+        // Extraer los nombres de los epígrafes seleccionados para pasarlos al prompt de la IA
+        const nombresEpigrafes = epigrafesToUse
+          .map((id) => getEpigrafeById(id)?.nombre)
+          .filter(Boolean);
 
-      const totalTemas = idsToUse.length;
-      const tituloSesion = totalTemas === 45
-        ? `Simulacro General C1 (${numPreguntas} preguntas)`
-        : `Test Oficial C1 (${numPreguntas} preguntas • ${totalTemas} temas)`;
+        const questions = await api.generarTestTema(
+          temaObj.titulo,
+          temaObj.bloqueNombre,
+          nombresEpigrafes.length > 0 ? nombresEpigrafes : null,
+          numPreguntas
+        );
 
-      startTest('tema', questions, {
-        titulo: tituloSesion,
-        isTimed,
-        timeLimitMinutes,
-        numPreguntas,
-        selectedTopicIds: idsToUse,
-      });
+        const detalleApartados = nombresEpigrafes.length > 0 && nombresEpigrafes.length <= 2
+          ? ` • ${nombresEpigrafes.join(', ')}`
+          : nombresEpigrafes.length > 2
+          ? ` • ${nombresEpigrafes.length} apartados específicos`
+          : '';
+
+        const tituloSesion = `Test IA: Tema ${temaObj.numero || ''}${detalleApartados} (${questions.length} preg.)`;
+
+        startTest('tema', questions, {
+          titulo: tituloSesion,
+          isTimed,
+          timeLimitMinutes,
+          numPreguntas: questions.length,
+          selectedTopicIds: idsToUse,
+          fuente: 'ia_openrouter',
+        });
+      } else {
+        setLoadingMode('custom-test');
+        const questions = api.getPreguntasPorSeleccion({
+          selectedTopicIds: idsToUse,
+          selectedEpigrafeIds: epigrafesToUse,
+          numPreguntas,
+        });
+
+        const totalTemas = idsToUse.length;
+        const tituloSesion = totalTemas === 45
+          ? `Simulacro General C1 (${numPreguntas} preguntas)`
+          : `Test Oficial C1 (${numPreguntas} preguntas • ${totalTemas} temas)`;
+
+        startTest('tema', questions, {
+          titulo: tituloSesion,
+          isTimed,
+          timeLimitMinutes,
+          numPreguntas,
+          selectedTopicIds: idsToUse,
+        });
+      }
 
       setShowConfigModal(false);
       setShowFullSelectorModal(false);
@@ -118,7 +174,26 @@ export const Dashboard = () => {
     }
   };
 
-  // 3. Iniciar repaso de errores
+  // 3. Iniciar generación directa con IA para un tema y sus apartados
+  const handleStartAITestDirect = async ({ tema, bloque, epigrafes }) => {
+    try {
+      setLoadingMode('generar-tema');
+      setShowFullSelectorModal(false);
+      const questions = await api.generarTestTema(tema, bloque, epigrafes, 10);
+      const sub = epigrafes && epigrafes.length > 0 ? ` (${epigrafes.join(', ')})` : '';
+      startTest('tema', questions, {
+        titulo: `Test IA: ${tema.substring(0, 40)}...${sub}`,
+        numPreguntas: questions.length,
+        fuente: 'ia_openrouter',
+      });
+    } catch (err) {
+      console.error('Error en generación directa con IA:', err);
+    } finally {
+      setLoadingMode(null);
+    }
+  };
+
+  // 4. Iniciar repaso de errores
   const handleStartRepaso = async () => {
     try {
       setLoadingMode('repaso');
@@ -271,7 +346,8 @@ export const Dashboard = () => {
 
               <TopicSelect
                 selectedTopicIds={selectedTopicIds}
-                onSelectionChange={(newTopics) => setSelectedTopicIds(newTopics)}
+                selectedEpigrafeIds={selectedEpigrafeIds}
+                onSelectionChange={handleSelectionChange}
                 onOpenConfigModal={() => setShowConfigModal(true)}
               />
             </div>
@@ -421,20 +497,21 @@ export const Dashboard = () => {
             >
               <TestConfigModal
                 selectedTopicIds={selectedTopicIds}
+                selectedEpigrafeIds={selectedEpigrafeIds}
                 onClose={() => setShowConfigModal(false)}
                 onBackToTopics={() => {
                   setShowConfigModal(false);
                   setShowFullSelectorModal(true);
                 }}
                 onStartTest={handleStartCustomTest}
-                isLoading={loadingMode === 'custom-test'}
+                isLoading={loadingMode === 'custom-test' || loadingMode === 'generar-tema'}
               />
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* MODAL TEMARIO COMPLETO: Checklist de Bloques y Temas */}
+      {/* MODAL TEMARIO COMPLETO: Checklist de Bloques, Temas y Apartados */}
       <AnimatePresence>
         {showFullSelectorModal && (
           <div 
@@ -452,7 +529,9 @@ export const Dashboard = () => {
             >
               <BloqueTemaSelector
                 selectedTopicIds={selectedTopicIds}
-                onSelectionChange={(newTopics) => setSelectedTopicIds(newTopics)}
+                selectedEpigrafeIds={selectedEpigrafeIds}
+                onSelectionChange={handleSelectionChange}
+                onStartAITest={handleStartAITestDirect}
                 onClose={() => setShowFullSelectorModal(false)}
                 onProceedToConfig={() => {
                   setShowFullSelectorModal(false);

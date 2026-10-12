@@ -9,19 +9,22 @@ import {
   Layers, 
   CheckSquare, 
   RotateCcw,
-  Sliders
+  Sliders,
+  Sparkles
 } from 'lucide-react';
 import { BLOQUES_TEMARIO } from '../services/temarioData';
 
 export const TopicSelect = ({ 
   selectedTopicIds = [], 
+  selectedEpigrafeIds = [],
   onSelectionChange, 
   onOpenConfigModal,
   disabled = false 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedBlocks, setExpandedBlocks] = useState({ 'bloque-1': true }); // Bloque 1 abierto inicialmente
+  const [expandedBlocks, setExpandedBlocks] = useState({ 'bloque-1': true });
+  const [expandedTopics, setExpandedTopics] = useState({});
   const dropdownRef = useRef(null);
 
   // Cerrar al hacer clic fuera del desplegable
@@ -44,47 +47,97 @@ export const TopicSelect = ({
     }));
   };
 
-  // Checkbox a nivel de bloque entero (selecciona o deselecciona todos los temas del bloque)
+  // Alternar apertura de los apartados de un tema específico
+  const toggleTopicAccordion = (topicId, e) => {
+    if (e) e.stopPropagation();
+    setExpandedTopics((prev) => ({
+      ...prev,
+      [topicId]: !prev[topicId],
+    }));
+  };
+
+  // Checkbox a nivel de bloque entero (selecciona o deselecciona todos los temas y epígrafes del bloque)
   const handleToggleBlockCheck = (bloque, e) => {
     if (e) e.stopPropagation();
     if (disabled) return;
 
     const topicIdsInBlock = bloque.temas.map((t) => t.id);
+    const epigrafesInBlock = bloque.temas.flatMap((t) => t.epigrafes?.map((item) => item.id) || []);
     const allSelected = topicIdsInBlock.every((id) => selectedTopicIds.includes(id));
 
+    let newTopicIds;
+    let newEpigrafeIds;
+
     if (allSelected) {
-      // Deseleccionar todos los del bloque
-      onSelectionChange(selectedTopicIds.filter((id) => !topicIdsInBlock.includes(id)));
+      newTopicIds = selectedTopicIds.filter((id) => !topicIdsInBlock.includes(id));
+      newEpigrafeIds = selectedEpigrafeIds.filter((id) => !epigrafesInBlock.includes(id));
     } else {
-      // Seleccionar todos los del bloque
-      const newSelection = Array.from(new Set([...selectedTopicIds, ...topicIdsInBlock]));
-      onSelectionChange(newSelection);
+      newTopicIds = Array.from(new Set([...selectedTopicIds, ...topicIdsInBlock]));
+      newEpigrafeIds = Array.from(new Set([...selectedEpigrafeIds, ...epigrafesInBlock]));
     }
+
+    onSelectionChange(newTopicIds, newEpigrafeIds);
   };
 
-  // Checkbox de un tema individual
-  const handleToggleTopic = (topicId, e) => {
+  // Checkbox de un tema individual (selecciona o deselecciona todos sus epígrafes)
+  const handleToggleTopic = (tema, e) => {
     if (e) e.stopPropagation();
     if (disabled) return;
 
-    if (selectedTopicIds.includes(topicId)) {
-      onSelectionChange(selectedTopicIds.filter((id) => id !== topicId));
+    const isTopicSelected = selectedTopicIds.includes(tema.id);
+    const epigrafesTemaIds = tema.epigrafes?.map((item) => item.id) || [];
+
+    let newTopicIds;
+    let newEpigrafeIds;
+
+    if (isTopicSelected) {
+      newTopicIds = selectedTopicIds.filter((id) => id !== tema.id);
+      newEpigrafeIds = selectedEpigrafeIds.filter((id) => !epigrafesTemaIds.includes(id));
     } else {
-      onSelectionChange([...selectedTopicIds, topicId]);
+      newTopicIds = [...selectedTopicIds, tema.id];
+      newEpigrafeIds = Array.from(new Set([...selectedEpigrafeIds, ...epigrafesTemaIds]));
     }
+
+    onSelectionChange(newTopicIds, newEpigrafeIds);
   };
 
-  // Seleccionar todo el temario (los 45 temas)
+  // Checkbox de un epígrafe / bloque específico individual
+  const handleToggleEpigrafe = (tema, epigrafeId, e) => {
+    if (e) e.stopPropagation();
+    if (disabled) return;
+
+    let newEpigrafeIds;
+    if (selectedEpigrafeIds.includes(epigrafeId)) {
+      newEpigrafeIds = selectedEpigrafeIds.filter((id) => id !== epigrafeId);
+    } else {
+      newEpigrafeIds = [...selectedEpigrafeIds, epigrafeId];
+    }
+
+    const epigrafesTemaIds = tema.epigrafes?.map((item) => item.id) || [];
+    const hasAnyInTema = epigrafesTemaIds.some((id) => newEpigrafeIds.includes(id));
+
+    let newTopicIds = [...selectedTopicIds];
+    if (hasAnyInTema && !newTopicIds.includes(tema.id)) {
+      newTopicIds.push(tema.id);
+    } else if (!hasAnyInTema && newTopicIds.includes(tema.id)) {
+      newTopicIds = newTopicIds.filter((id) => id !== tema.id);
+    }
+
+    onSelectionChange(newTopicIds, newEpigrafeIds);
+  };
+
+  // Seleccionar todo el temario (los 45 temas y todos los epígrafes)
   const handleSelectAll = (e) => {
     if (e) e.stopPropagation();
-    const allIds = BLOQUES_TEMARIO.flatMap((b) => b.temas.map((t) => t.id));
-    onSelectionChange(allIds);
+    const allTopicIds = BLOQUES_TEMARIO.flatMap((b) => b.temas.map((t) => t.id));
+    const allEpigrafeIds = BLOQUES_TEMARIO.flatMap((b) => b.temas.flatMap((t) => t.epigrafes?.map((item) => item.id) || []));
+    onSelectionChange(allTopicIds, allEpigrafeIds);
   };
 
   // Deseleccionar todo
   const handleClearAll = (e) => {
     if (e) e.stopPropagation();
-    onSelectionChange([]);
+    onSelectionChange([], []);
   };
 
   // Filtrado de bloques y temas con el buscador
@@ -97,7 +150,8 @@ export const TopicSelect = ({
       const temasMatch = bloque.temas.filter((t) =>
         t.titulo.toLowerCase().includes(q) ||
         `tema ${t.numero}`.toLowerCase().includes(q) ||
-        (t.leyes && t.leyes.toLowerCase().includes(q))
+        (t.leyes && t.leyes.toLowerCase().includes(q)) ||
+        t.epigrafes?.some((e) => e.nombre.toLowerCase().includes(q))
       );
 
       if (matchBloque) return bloque;
@@ -154,10 +208,16 @@ export const TopicSelect = ({
         }
       }
       if (found) {
+        const epCount = found.tema.epigrafes?.filter((e) => selectedEpigrafeIds.includes(e.id)).length || 0;
+        const totalEp = found.tema.epigrafes?.length || 0;
+        const epSub = epCount === totalEp || epCount === 0 
+          ? 'Tema completo' 
+          : `${epCount} de ${totalEp} apartados seleccionados`;
+
         return {
           badge: `${found.bloque} • T${found.tema.numero}`,
           titulo: `Tema ${found.tema.numero}: ${found.tema.titulo}`,
-          subtitulo: '1 tema seleccionado',
+          subtitulo: epSub,
         };
       }
     }
@@ -165,14 +225,14 @@ export const TopicSelect = ({
     return {
       badge: `${selectedTopicIds.length} temas`,
       titulo: `${selectedTopicIds.length} temas seleccionados`,
-      subtitulo: `${bloquesCompletos.length > 0 ? `${bloquesCompletos.length} bloques completos + ` : ''}personalizado`,
+      subtitulo: `${selectedEpigrafeIds.length} apartados específicos seleccionados`,
     };
-  }, [selectedTopicIds]);
+  }, [selectedTopicIds, selectedEpigrafeIds]);
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
       
-      {/* Botón Disparador del Desplegable (Estilo Warm Cream idéntico al diseño) */}
+      {/* Botón Disparador del Desplegable */}
       <button
         type="button"
         disabled={disabled}
@@ -180,12 +240,10 @@ export const TopicSelect = ({
         className="w-full bg-white/90 hover:bg-white border border-[#d8ccc0] hover:border-[#9a897b] text-[#3e342b] rounded-2xl p-2.5 sm:p-3 flex items-center justify-between gap-2.5 shadow-2xs transition-all active:scale-[0.99] text-left disabled:opacity-50 cursor-pointer"
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          {/* Badge del Bloque o temas */}
           <span className="shrink-0 text-[10.5px] font-bold px-2.5 py-1 rounded-lg bg-[#ebe3d8] text-[#54463a] border border-[#d8ccc0] tracking-wider uppercase">
             {triggerSummary.badge}
           </span>
 
-          {/* Título truncado */}
           <div className="min-w-0 flex-1">
             <span className="text-xs sm:text-sm font-semibold text-[#372d25] truncate block">
               {triggerSummary.titulo}
@@ -196,7 +254,6 @@ export const TopicSelect = ({
           </div>
         </div>
 
-        {/* Flecha indicadora */}
         <ChevronDown
           className={`w-4 h-4 text-[#8a796b] shrink-0 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
@@ -204,7 +261,7 @@ export const TopicSelect = ({
         />
       </button>
 
-      {/* Menú Desplegable Flotante Jerárquico: Bloques -> Temas con Checklist */}
+      {/* Menú Desplegable Flotante Jerárquico: Bloques -> Temas -> Apartados */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -212,7 +269,7 @@ export const TopicSelect = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className="absolute left-0 right-0 top-full mt-2 z-50 warm-cream-card rounded-2xl p-2.5 sm:p-3 shadow-2xl border border-[#d8ccc0] bg-[#f9f6f0] text-[#3e342b] w-full max-w-full sm:min-w-[420px]"
+            className="absolute left-0 right-0 top-full mt-2 z-50 warm-cream-card rounded-2xl p-2.5 sm:p-3 shadow-2xl border border-[#d8ccc0] bg-[#f9f6f0] text-[#3e342b] w-full max-w-full sm:min-w-[440px]"
           >
             {/* Buscador Rápido de Temas y Leyes */}
             <div className="pb-2 border-b border-[#ded3c7] space-y-1.5">
@@ -222,7 +279,7 @@ export const TopicSelect = ({
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Buscar bloque, tema o ley (ej: CE, 39/2015, Word)..."
+                  placeholder="Buscar bloque, tema, apartado o ley (ej: CE, Word, 39/2015)..."
                   className="w-full pl-8 pr-3 py-1.5 bg-white/95 border border-[#d8ccc0] text-[#3e342b] rounded-xl text-xs placeholder-[#9a897b] focus:outline-none focus:border-[#8a796b] transition"
                   autoFocus
                 />
@@ -249,7 +306,7 @@ export const TopicSelect = ({
               </div>
             </div>
 
-            {/* PRIMER DESPLEGABLE: Lista de Bloques */}
+            {/* LISTA DE BLOQUES */}
             <div className="max-h-72 overflow-y-auto py-1.5 space-y-1.5 pr-1 custom-scrollbar">
               {bloquesFiltrados.length === 0 ? (
                 <div className="p-4 text-center text-xs text-[#8a796b]">
@@ -268,7 +325,7 @@ export const TopicSelect = ({
                       key={bloque.id}
                       className="rounded-xl border border-[#ded3c7] bg-white/90 overflow-hidden transition-all shadow-2xs"
                     >
-                      {/* Cabecera del Bloque: Checklist de bloque + Nombre + Flecha para desplegar temas */}
+                      {/* Cabecera del Bloque */}
                       <div
                         onClick={(e) => toggleBlockAccordion(bloque.id, e)}
                         className={`p-2.5 flex items-center justify-between gap-2 cursor-pointer select-none transition ${
@@ -276,7 +333,6 @@ export const TopicSelect = ({
                         }`}
                       >
                         <div className="flex items-center gap-2 min-w-0 flex-1">
-                          {/* Checkbox del Bloque Entero */}
                           <button
                             type="button"
                             onClick={(e) => handleToggleBlockCheck(bloque, e)}
@@ -293,7 +349,6 @@ export const TopicSelect = ({
                             {isPartiallySelected && <Minus className="w-3 h-3 stroke-[3]" />}
                           </button>
 
-                          {/* Título del Bloque */}
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5">
                               <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#ded3c7] text-[#4d4035]">
@@ -309,7 +364,6 @@ export const TopicSelect = ({
                           </div>
                         </div>
 
-                        {/* Flecha indicadora de apertura de temas */}
                         <div className="p-1 text-[#8a796b]">
                           <ChevronDown
                             className={`w-3.5 h-3.5 transition-transform duration-200 ${
@@ -319,7 +373,7 @@ export const TopicSelect = ({
                         </div>
                       </div>
 
-                      {/* SEGUNDO DESPLEGABLE: Temas dentro del Bloque */}
+                      {/* TEMAS DENTRO DEL BLOQUE */}
                       <AnimatePresence>
                         {isExpanded && (
                           <motion.div
@@ -331,42 +385,111 @@ export const TopicSelect = ({
                           >
                             {bloque.temas.map((tema) => {
                               const isTopicSelected = selectedTopicIds.includes(tema.id);
+                              const epigrafesIds = tema.epigrafes?.map((e) => e.id) || [];
+                              const selectedEpigrafesCount = epigrafesIds.filter((id) => selectedEpigrafeIds.includes(id)).length;
+                              const isAllEpigrafesSelected = epigrafesIds.length > 0 && selectedEpigrafesCount === epigrafesIds.length;
+                              const isPartiallyEpigrafes = selectedEpigrafesCount > 0 && !isAllEpigrafesSelected;
+                              const isTopicOpen = Boolean(expandedTopics[tema.id]);
+
                               return (
                                 <div
                                   key={tema.id}
-                                  onClick={(e) => handleToggleTopic(tema.id, e)}
-                                  className={`p-2 rounded-lg border text-left flex items-start gap-2 transition cursor-pointer select-none ${
+                                  className={`rounded-lg border text-left transition select-none overflow-hidden ${
                                     isTopicSelected
-                                      ? 'bg-[#eae0d4] border-[#b5a392] text-[#2c221a]'
-                                      : 'bg-white/80 border-[#eee5dc] hover:bg-white text-[#4f4236]'
+                                      ? 'bg-[#eae0d4] border-[#b5a392]'
+                                      : 'bg-white/80 border-[#eee5dc] hover:bg-white'
                                   }`}
                                 >
-                                  {/* Checkbox del tema */}
-                                  <div
-                                    className={`w-3.5 h-3.5 mt-0.5 rounded border flex items-center justify-center shrink-0 transition ${
-                                      isTopicSelected
-                                        ? 'bg-[#3e342b] border-[#3e342b] text-white'
-                                        : 'bg-white border-[#d0c4b9]'
-                                    }`}
+                                  <div 
+                                    onClick={(e) => handleToggleTopic(tema, e)}
+                                    className="p-2 flex items-start gap-2 cursor-pointer"
                                   >
-                                    {isTopicSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                                    <div
+                                      className={`w-3.5 h-3.5 mt-0.5 rounded border flex items-center justify-center shrink-0 transition ${
+                                        isAllEpigrafesSelected || (isTopicSelected && epigrafesIds.length === 0)
+                                          ? 'bg-[#3e342b] border-[#3e342b] text-white'
+                                          : isPartiallyEpigrafes
+                                          ? 'bg-[#8a796b] border-[#8a796b] text-white'
+                                          : 'bg-white border-[#d0c4b9]'
+                                      }`}
+                                    >
+                                      {(isAllEpigrafesSelected || (isTopicSelected && epigrafesIds.length === 0)) && (
+                                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                      )}
+                                      {isPartiallyEpigrafes && (
+                                        <Minus className="w-2.5 h-2.5 stroke-[3]" />
+                                      )}
+                                    </div>
+
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center justify-between gap-1">
+                                        <div className="flex items-center gap-1.5 min-w-0">
+                                          <span className="text-[9.5px] font-bold px-1 py-0.2 rounded bg-[#ded3c7] text-[#4d4035] shrink-0">
+                                            Tema {tema.numero}
+                                          </span>
+                                          <span className="text-[11.5px] font-medium leading-tight truncate">
+                                            {tema.titulo}
+                                          </span>
+                                        </div>
+
+                                        {tema.epigrafes && tema.epigrafes.length > 0 && (
+                                          <button
+                                            type="button"
+                                            onClick={(e) => toggleTopicAccordion(tema.id, e)}
+                                            className="text-[9.5px] font-bold text-[#705e4f] hover:text-[#3e342b] px-1 py-0.5 rounded bg-white/70 border border-[#d8ccc0] shrink-0 flex items-center gap-0.5"
+                                          >
+                                            <span>{tema.epigrafes.length} ap.</span>
+                                            <ChevronDown
+                                              className={`w-3 h-3 transition-transform ${
+                                                isTopicOpen ? 'rotate-180' : ''
+                                              }`}
+                                            />
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
                                   </div>
 
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-[9.5px] font-bold px-1 py-0.2 rounded bg-[#ded3c7] text-[#4d4035] shrink-0">
-                                        Tema {tema.numero}
-                                      </span>
-                                      <span className="text-[11.5px] font-medium leading-tight line-clamp-2">
-                                        {tema.titulo}
-                                      </span>
-                                    </div>
-                                    {tema.leyes && (
-                                      <p className="text-[10px] text-[#857466] italic mt-0.5 truncate">
-                                        ⚖️ {tema.leyes}
-                                      </p>
+                                  {/* Desplegable de epígrafes específicos dentro de TopicSelect */}
+                                  <AnimatePresence>
+                                    {isTopicOpen && tema.epigrafes && tema.epigrafes.length > 0 && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.12 }}
+                                        className="border-t border-[#ded3c7] bg-[#f5ede4] p-2 space-y-1"
+                                      >
+                                        {tema.epigrafes.map((epigrafe) => {
+                                          const isEpigrafeSelected = selectedEpigrafeIds.includes(epigrafe.id);
+                                          return (
+                                            <div
+                                              key={epigrafe.id}
+                                              onClick={(e) => handleToggleEpigrafe(tema, epigrafe.id, e)}
+                                              className={`p-1 px-2 rounded-md border text-[10.5px] flex items-center gap-2 cursor-pointer transition ${
+                                                isEpigrafeSelected
+                                                  ? 'bg-white border-[#3e342b] font-medium text-[#2d2218]'
+                                                  : 'bg-white/60 border-[#e3d7cb] text-[#554639] hover:bg-white'
+                                              }`}
+                                            >
+                                              <div
+                                                className={`w-3 h-3 rounded border flex items-center justify-center shrink-0 ${
+                                                  isEpigrafeSelected
+                                                    ? 'bg-[#3e342b] border-[#3e342b] text-white'
+                                                    : 'bg-white border-[#c8bcaf]'
+                                                }`}
+                                              >
+                                                {isEpigrafeSelected && <Check className="w-2 h-2 stroke-[3]" />}
+                                              </div>
+                                              <span className="truncate">
+                                                <strong>{epigrafe.numero}.</strong> {epigrafe.nombre}
+                                              </span>
+                                            </div>
+                                          );
+                                        })}
+                                      </motion.div>
                                     )}
-                                  </div>
+                                  </AnimatePresence>
                                 </div>
                               );
                             })}
@@ -379,10 +502,10 @@ export const TopicSelect = ({
               )}
             </div>
 
-            {/* Barra inferior del desplegable: Botón para guardar o pasar a pantalla de tiempo */}
+            {/* Barra inferior */}
             <div className="pt-2 border-t border-[#ded3c7] flex items-center justify-between gap-2">
               <span className="text-[11px] font-bold text-[#554639]">
-                {selectedTopicIds.length} temas marcados
+                {selectedTopicIds.length} temas ({selectedEpigrafeIds.length} ap.)
               </span>
 
               <div className="flex items-center gap-1.5">

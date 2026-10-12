@@ -1,9 +1,7 @@
 const db = require('../config/db');
+const aiService = require('../services/aiService');
 
 const DEMO_USER_ID = 'a0000000-0000-0000-0000-000000000001';
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct';
-const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 /**
  * GET /api/test/oficiales
@@ -74,131 +72,70 @@ const getTestOficiales = async (req, res) => {
 
 /**
  * POST /api/test/generar-tema
- * Genera dinámicamente con IA (OpenRouter / Llama 3) un test de 10 preguntas para un tema y bloque dados
+ * Genera dinámicamente con IA (OpenRouter) un test de preguntas para un tema y sus bloques específicos.
  */
 const generarTestTema = async (req, res) => {
-  const { tema, bloque, nombre_tema } = req.body;
+  const { tema, bloque, nombre_tema, epigrafes, subtemas, bloque_especifico, cantidad } = req.body;
   const temaFinal = tema || nombre_tema;
   const bloqueFinal = bloque || 'Bloque correspondiente del C1';
+  const epigrafesFinal = epigrafes || subtemas || (bloque_especifico ? [bloque_especifico] : null);
+  const cantidadFinal = parseInt(cantidad, 10) || 10;
 
   if (!temaFinal) {
     return res.status(400).json({
       success: false,
-      message: 'El campo "tema" o "nombre_tema" es obligatorio en el body.',
+      message: 'El campo "tema" o "nombre_tema" es obligatorio en el cuerpo de la petición.',
     });
   }
 
-  console.log(`\n🧠 Generando test con IA para el tema: "${temaFinal}" (Bloque: "${bloqueFinal}")...`);
+  const detalleEpigrafes = Array.isArray(epigrafesFinal) && epigrafesFinal.length > 0
+    ? ` [Apartados: ${epigrafesFinal.join(', ')}]`
+    : '';
 
-  // Si no hay API KEY configurada todavía, devolver un set contextual simulado para no bloquear
-  if (!OPENROUTER_API_KEY) {
-    console.warn('⚠️ OPENROUTER_API_KEY no detectada en .env. Devolviendo test generado de respaldo.');
-    return res.json({
-      success: true,
-      tema: temaFinal,
-      bloque: bloqueFinal,
-      fuente: 'mock_local',
-      total: 10,
-      data: generarPreguntasMockTema(temaFinal),
-    });
-  }
+  console.log(`\n🧠 [OpoBrAIn Backend] Solicitando generación con IA para: "${temaFinal}" (${bloqueFinal})${detalleEpigrafes}...`);
 
   try {
-    const promptSistema = `Eres un redactor de tribunales de oposición para el Cuerpo General Administrativo de la Administración del Estado (C1) de España.
-
-Genera 10 preguntas tipo test rigurosas, basadas estrictamente en la legislación española vigente correspondiente al tema solicitado.
-
-Cada pregunta debe tener 4 opciones (A, B, C, D), una única respuesta válida, y una explicación citando el artículo y ley exacta.
-
-Devuelve EXCLUSIVAMENTE un array JSON válido sin texto adicional: [{ enunciado, opcion_a, opcion_b, opcion_c, opcion_d, respuesta_correcta, explicacion }].`;
-
-    const promptUsuario = `Tema: ${temaFinal}
-Bloque temático: ${bloqueFinal}
-
-Genera las 10 preguntas tipo test cumpliendo rigurosamente las instrucciones.`;
-
-    const payload = {
-      model: OPENROUTER_MODEL,
-      messages: [
-        {
-          role: 'system',
-          content: promptSistema,
-        },
-        {
-          role: 'user',
-          content: promptUsuario,
-        },
-      ],
-      temperature: 0.2,
-      max_tokens: 8000,
-    };
-
-    const response = await fetch(OPENROUTER_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://opobrain.es',
-        'X-Title': 'OpoBrAIn Dynamic Topic Generator',
-      },
-      body: JSON.stringify(payload),
+    const preguntasGeneradas = await aiService.generarPreguntasTest({
+      tema: temaFinal,
+      bloque: bloqueFinal,
+      epigrafes: epigrafesFinal,
+      cantidad: cantidadFinal,
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`OpenRouter error (${response.status}): ${errText}`);
-    }
-
-    const dataAI = await response.json();
-    const contenido = dataAI.choices?.[0]?.message?.content;
-
-    if (!contenido) {
-      throw new Error('Respuesta vacía desde OpenRouter.');
-    }
-
-    // Limpieza de formato JSON
-    let limpio = contenido.trim();
-    if (limpio.startsWith('```json')) limpio = limpio.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    if (limpio.startsWith('```')) limpio = limpio.replace(/^```\s*/, '').replace(/\s*```$/, '');
-
-    const pInicio = limpio.indexOf('[');
-    const pFin = limpio.lastIndexOf(']');
-    if (pInicio !== -1 && pFin !== -1 && pFin > pInicio) {
-      limpio = limpio.substring(pInicio, pFin + 1);
-    }
-
-    const preguntasGeneradas = JSON.parse(limpio);
-
-    // Mapear con id único generado en memoria
+    const timestamp = Date.now();
     const preguntasConId = preguntasGeneradas.map((p, index) => ({
-      id: `gen-${Date.now()}-${index + 1}`,
+      id: `gen-${timestamp}-${index + 1}`,
       numero: index + 1,
       tema_nombre: temaFinal,
+      epigrafes: epigrafesFinal,
       enunciado: p.enunciado,
       opcion_a: p.opcion_a,
       opcion_b: p.opcion_b,
       opcion_c: p.opcion_c,
       opcion_d: p.opcion_d,
-      respuesta_correcta: String(p.respuesta_correcta).trim().toUpperCase(),
+      respuesta_correcta: p.respuesta_correcta,
       explicacion: p.explicacion,
     }));
 
-    res.json({
+    return res.json({
       success: true,
       tema: temaFinal,
+      bloque: bloqueFinal,
+      epigrafes: epigrafesFinal,
       fuente: 'openrouter',
       total: preguntasConId.length,
       data: preguntasConId,
     });
   } catch (error) {
-    console.error('Error al llamar a OpenRouter en generar-tema:', error.message);
-    // Fallback de contingencia para garantizar fluidez
-    res.json({
-      success: true,
+    console.error('❌ Error en generación de test con OpenRouter:', error.message);
+
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || 'Error al comunicarse con el servicio de IA.',
+      code: error.code || 'AI_GENERATION_ERROR',
       tema: temaFinal,
-      fuente: 'fallback_error',
-      total: 10,
-      data: generarPreguntasMockTema(temaFinal),
+      epigrafes: epigrafesFinal,
     });
   }
 };
