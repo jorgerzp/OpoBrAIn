@@ -30,19 +30,13 @@ import { TopicSelect } from './TopicSelect';
 import { BloqueTemaSelector } from './BloqueTemaSelector';
 import { TestConfigModal } from './TestConfigModal';
 import { BLOQUES_TEMARIO } from '../services/temarioData';
-
-const mockProgresoData = [
-  { dia: 'Lun', aciertos: 42, fallos: 10 },
-  { dia: 'Mar', aciertos: 48, fallos: 8 },
-  { dia: 'Mié', aciertos: 55, fallos: 9 },
-  { dia: 'Jue', aciertos: 51, fallos: 6 },
-  { dia: 'Vie', aciertos: 64, fallos: 5 },
-  { dia: 'Sáb', aciertos: 78, fallos: 4 },
-  { dia: 'Dom', aciertos: 72, fallos: 6 },
-];
+import { statsService } from '../services/statsService';
 
 export const Dashboard = () => {
   const startTest = useTestStore((state) => state.startTest);
+
+  // Estadísticas reales del opositor
+  const [stats, setStats] = useState(() => statsService.getDashboardSummary());
 
   // Temas seleccionados (IDs como 'b1-t1', 'b1-t2', etc.)
   const [selectedTopicIds, setSelectedTopicIds] = useState(['b1-t1']);
@@ -193,18 +187,21 @@ export const Dashboard = () => {
       {/* LAS 3 TARJETAS INFERIORES */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
         
-        {/* TARJETA 1: Exámenes Oficiales (SIN DESPLEGABLE) */}
+        {/* TARJETA 1: Exámenes Oficiales (SIN DESPLEGABLE, SIN PUNTUACIÓN DE ESTRELLAS) */}
         <div className="warm-cream-card rounded-3xl p-7 flex flex-col justify-between text-[#443930]">
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex text-[#8a796b]">
-                <Star className="w-4 h-4 fill-[#8a796b]" />
-                <Star className="w-4 h-4 fill-[#8a796b]" />
-                <Star className="w-4 h-4 fill-[#8a796b]" />
-                <Star className="w-4 h-4 fill-[#8a796b]" />
-                <Star className="w-4 h-4 fill-none" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#3e342b] text-white flex items-center justify-center shadow-xs">
+                <Award className="w-5 h-5 text-[#f4efe8]" />
               </div>
-              <span className="font-semibold text-base text-[#443930]">4.8</span>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-[#8a796b] tracking-wider block">
+                  Convocatorias AGE
+                </span>
+                <span className="text-xs font-bold text-[#3e342b]">
+                  Exámenes Oficiales INAP
+                </span>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -292,23 +289,31 @@ export const Dashboard = () => {
           </button>
         </div>
 
-        {/* TARJETA 3: Gran Métrica 87% (Batería de Errores) */}
+        {/* TARJETA 3: Gran Métrica Real (Batería de Errores con estadísticas reales) */}
         <div className="warm-cream-card rounded-3xl p-7 flex flex-col justify-between text-[#443930]">
           <div className="space-y-4">
             <div>
               <div className="text-5xl font-light tracking-tight text-[#3e342b] leading-none">
-                87%
+                {stats.tasaRetencion}%
               </div>
               <div className="text-[11px] font-semibold tracking-wider uppercase text-[#857568] mt-1">
-                Tasa de Retención
+                Tasa de Acierto Real
               </div>
             </div>
 
             <div className="space-y-1">
               <h3 className="font-bold text-base text-[#372d25]">Batería de Errores</h3>
               <p className="text-xs sm:text-sm text-[#736457] leading-relaxed">
-                Preguntas que has fallado previamente. El sistema las fija activamente hasta que las aciertes.
+                {stats.fallosPendientesCount > 0
+                  ? `Tienes ${stats.fallosPendientesCount} preguntas falladas en tu historial para consolidar.`
+                  : 'Sin fallos pendientes. Has respondido con éxito tus preguntas de práctica.'}
               </p>
+            </div>
+
+            <div className="text-[11px] text-[#78695d] bg-[#ebe3d8] p-2.5 rounded-xl border border-[#d8ccc0] flex items-center justify-between">
+              <span>Aciertos: <strong>{stats.totalAciertos}</strong></span>
+              <span>•</span>
+              <span>Fallos: <strong>{stats.totalFallos}</strong></span>
             </div>
           </div>
 
@@ -324,7 +329,7 @@ export const Dashboard = () => {
               </>
             ) : (
               <>
-                <span>Repasar Fallos</span>
+                <span>{stats.fallosPendientesCount > 0 ? `Repasar Fallos (${stats.fallosPendientesCount})` : 'Repasar Batería de Errores'}</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </>
             )}
@@ -333,7 +338,7 @@ export const Dashboard = () => {
 
       </div>
 
-      {/* Botón discreto para desplegar el Gráfico de Recharts */}
+      {/* Botón discreto para desplegar el Gráfico de Recharts con DATOS REALES */}
       <div className="pt-2">
         <button
           onClick={() => setShowStats(!showStats)}
@@ -348,25 +353,25 @@ export const Dashboard = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h3 className="font-bold text-base text-[#372d25] flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-[#8a796b]" /> Rendimiento Semanal
+                  <TrendingUp className="w-4 h-4 text-[#8a796b]" /> Rendimiento Semanal Real
                 </h3>
                 <p className="text-xs text-[#736457]">
-                  Balance de aciertos frente a fallos en tus sesiones
+                  Balance de aciertos frente a fallos registrado en tus sesiones
                 </p>
               </div>
               <div className="flex items-center gap-4 text-xs font-medium">
                 <span className="flex items-center gap-1.5 text-[#54463a]">
-                  <span className="w-3 h-3 rounded-full bg-[#8c7a6b] inline-block"></span> Aciertos
+                  <span className="w-3 h-3 rounded-full bg-[#8c7a6b] inline-block"></span> Aciertos ({stats.totalAciertos})
                 </span>
                 <span className="flex items-center gap-1.5 text-[#9e5d52]">
-                  <span className="w-3 h-3 rounded-full bg-[#b8766a] inline-block"></span> Fallos
+                  <span className="w-3 h-3 rounded-full bg-[#b8766a] inline-block"></span> Fallos ({stats.totalFallos})
                 </span>
               </div>
             </div>
 
             <div className="h-60 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={mockProgresoData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={stats.semanaData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorAciertosWarm" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#8c7a6b" stopOpacity={0.65}/>

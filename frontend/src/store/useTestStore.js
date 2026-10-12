@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { api } from '../services/api';
+import { statsService } from '../services/statsService';
 
 export const useTestStore = create((set, get) => ({
   // Estado
@@ -49,7 +50,7 @@ export const useTestStore = create((set, get) => ({
 
   // Reducir un segundo del temporizador
   tickTimer: () => {
-    const { isTimed, remainingSeconds, isCompleted } = get();
+    const { isTimed, remainingSeconds, isCompleted, score, questions, testMeta, testMode } = get();
     if (!isTimed || isCompleted || remainingSeconds === null) return;
 
     if (remainingSeconds <= 1) {
@@ -58,6 +59,14 @@ export const useTestStore = create((set, get) => ({
         isCompleted: true,
         timerExpired: true,
       });
+      // Guardar finalización del test en estadísticas reales
+      statsService.recordTestCompletion({
+        aciertos: score.aciertos,
+        fallos: score.fallos,
+        total: questions.length,
+        titulo: testMeta?.titulo,
+        modo: testMode,
+      });
     } else {
       set({ remainingSeconds: remainingSeconds - 1 });
     }
@@ -65,10 +74,18 @@ export const useTestStore = create((set, get) => ({
 
   // Finalizar explícitamente por tiempo
   finishDueToTimeout: () => {
+    const { score, questions, testMeta, testMode } = get();
     set({
       isCompleted: true,
       timerExpired: true,
       remainingSeconds: 0,
+    });
+    statsService.recordTestCompletion({
+      aciertos: score.aciertos,
+      fallos: score.fallos,
+      total: questions.length,
+      titulo: testMeta?.titulo,
+      modo: testMode,
     });
   },
 
@@ -85,6 +102,9 @@ export const useTestStore = create((set, get) => ({
     const esCorrecta = optNormalizada === respEsperada;
     const explicacion = currentQuestion.explicacion || 'Fundamento legal aplicable conforme al temario oficial del Estado.';
 
+    const nuevosAciertos = esCorrecta ? score.aciertos + 1 : score.aciertos;
+    const nuevosFallos = !esCorrecta ? score.fallos + 1 : score.fallos;
+
     set({ 
       selectedOption: option, 
       isAnswered: true, 
@@ -95,9 +115,15 @@ export const useTestStore = create((set, get) => ({
         explicacion,
       },
       score: {
-        aciertos: esCorrecta ? score.aciertos + 1 : score.aciertos,
-        fallos: !esCorrecta ? score.fallos + 1 : score.fallos,
+        aciertos: nuevosAciertos,
+        fallos: nuevosFallos,
       },
+    });
+
+    // Guardar respuesta real en el servicio de estadísticas (actualiza aciertos, fallos y banco de errores)
+    statsService.recordAnswer({
+      question: currentQuestion,
+      isCorrect: esCorrecta,
     });
 
     // En segundo plano, notificar al backend si está disponible (sin bloquear la interacción del opositor)
@@ -111,7 +137,7 @@ export const useTestStore = create((set, get) => ({
 
   // Pasar a la siguiente pregunta o finalizar el test
   nextQuestion: () => {
-    const { currentIndex, questions } = get();
+    const { currentIndex, questions, score, testMeta, testMode } = get();
     if (currentIndex + 1 < questions.length) {
       set({
         currentIndex: currentIndex + 1,
@@ -122,6 +148,14 @@ export const useTestStore = create((set, get) => ({
     } else {
       set({
         isCompleted: true,
+      });
+      // Guardar test completado en estadísticas reales
+      statsService.recordTestCompletion({
+        aciertos: score.aciertos,
+        fallos: score.fallos,
+        total: questions.length,
+        titulo: testMeta?.titulo,
+        modo: testMode,
       });
     }
   },

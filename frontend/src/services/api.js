@@ -1,5 +1,6 @@
 import { getPreguntasPorTema } from './temasBanco';
 import { BLOQUES_TEMARIO, BANCO_PREGUNTAS_REALES, getPreguntasPorSeleccion } from './temarioData';
+import { statsService } from './statsService';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const DEMO_USER_ID = 'a0000000-0000-0000-0000-000000000001';
@@ -100,18 +101,22 @@ export const api = {
     }
   },
 
-  // Obtener batería de errores (repaso)
+  // Obtener batería de errores (repaso real)
   async getTestRepaso(usuarioId = DEMO_USER_ID) {
+    // 1. Priorizar preguntas reales falladas por el usuario
+    const realErrors = statsService.getDashboardSummary().preguntasParaRepaso;
+    if (realErrors && realErrors.length > 0) {
+      return realErrors;
+    }
     try {
       const res = await fetch(`${API_BASE_URL}/test/repaso`, {
         headers: { 'x-usuario-id': usuarioId },
       });
       if (!res.ok) throw new Error('Error al obtener batería de errores');
       const data = await res.json();
-      return data.data;
-    } catch (err) {
-      return getFallbackOficiales().slice(0, 3);
-    }
+      if (data.data && data.data.length > 0) return data.data;
+    } catch (err) {}
+    return getFallbackOficiales().slice(0, 5);
   },
 
   // Enviar respuesta
