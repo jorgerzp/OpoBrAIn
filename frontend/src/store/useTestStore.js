@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { api } from '../services/api';
 import { statsService } from '../services/statsService';
+import { useAuthStore } from './useAuthStore';
 
 export const useTestStore = create((set, get) => ({
   // Estado
@@ -67,6 +68,11 @@ export const useTestStore = create((set, get) => ({
         titulo: testMeta?.titulo,
         modo: testMode,
       });
+      // Notificar consumo de test si está en modo demo
+      const authState = useAuthStore.getState();
+      if (authState?.isDemoMode && authState?.recordDemoTestCompletion) {
+        authState.recordDemoTestCompletion();
+      }
     } else {
       set({ remainingSeconds: remainingSeconds - 1 });
     }
@@ -87,6 +93,10 @@ export const useTestStore = create((set, get) => ({
       titulo: testMeta?.titulo,
       modo: testMode,
     });
+    const authState = useAuthStore.getState();
+    if (authState?.isDemoMode && authState?.recordDemoTestCompletion) {
+      authState.recordDemoTestCompletion();
+    }
   },
 
   // Seleccionar una opción (A, B, C o D)
@@ -157,6 +167,11 @@ export const useTestStore = create((set, get) => ({
         titulo: testMeta?.titulo,
         modo: testMode,
       });
+      // Notificar consumo de test si está en modo demo
+      const authState = useAuthStore.getState();
+      if (authState?.isDemoMode && authState?.recordDemoTestCompletion) {
+        authState.recordDemoTestCompletion();
+      }
     }
   },
 

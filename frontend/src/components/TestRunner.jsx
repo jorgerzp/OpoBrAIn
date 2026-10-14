@@ -10,11 +10,14 @@ import {
   X,
   Clock,
   AlertTriangle,
-  Scale
+  Scale,
+  Sparkles
 } from 'lucide-react';
 import { useTestStore } from '../store/useTestStore';
+import { useAuthStore } from '../store/useAuthStore';
 
 export const TestRunner = () => {
+  const { isDemoMode, logout } = useAuthStore();
   const {
     questions,
     currentIndex,
@@ -143,6 +146,29 @@ export const TestRunner = () => {
               </>
             )}
           </div>
+
+          {/* Aviso de Modo Demo consumido */}
+          {isDemoMode && (
+            <div className="p-4 rounded-2xl bg-[#ebe3d8] border border-[#d8ccc0] text-[#3e342b] text-xs space-y-2 text-left">
+              <div className="flex items-center gap-2 font-bold text-sm text-[#372d25]">
+                <Sparkles className="w-4 h-4 text-amber-700 shrink-0" />
+                <span>Test de prueba en Modo Demo completado</span>
+              </div>
+              <p className="text-[#6d5e51] leading-relaxed text-[11px]">
+                Has utilizado tu test de prueba de cortesía. Para acceder a tests ilimitados, generación con IA de los 45 temas y registro persistente de fallos, inicia sesión con tu cuenta.
+              </p>
+              <button
+                onClick={() => {
+                  resetTest();
+                  logout();
+                }}
+                className="w-full mt-1 py-2.5 px-3 rounded-xl bg-[#3e342b] hover:bg-[#2c241d] active:scale-95 text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+              >
+                <span>Iniciar Sesión para Acceso Ilimitado</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
 
           <button
             onClick={resetTest}

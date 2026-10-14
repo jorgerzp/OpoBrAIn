@@ -16,7 +16,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { AmbientGlowCurve } from './AmbientGlowCurve';
 
 export const LoginPage = () => {
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const { login, isLoading, error, clearError, enterDemoMode } = useAuthStore();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -175,6 +175,31 @@ export const LoginPage = () => {
                 )}
               </button>
             </form>
+          </div>
+
+          {/* Acceso en Modo Demo (Debajo de la tarjeta de login) */}
+          <div className="pt-1 text-center space-y-3">
+            <div className="flex items-center gap-3 text-white/35 text-xs">
+              <div className="h-px bg-white/15 flex-1" />
+              <span className="uppercase tracking-widest text-[10px] font-medium text-white/60">
+                O prueba sin iniciar sesión
+              </span>
+              <div className="h-px bg-white/15 flex-1" />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => enterDemoMode()}
+              className="w-full py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-[0.98] border border-white/25 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2.5 transition cursor-pointer backdrop-blur-sm shadow-md group"
+            >
+              <Sparkles className="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform shrink-0" />
+              <span className="font-semibold">Explorar en Modo Demo (1 Test de Prueba)</span>
+              <ArrowRight className="w-4 h-4 text-white/70 group-hover:translate-x-0.5 transition-transform shrink-0" />
+            </button>
+
+            <p className="text-[11px] text-white/65 font-light leading-relaxed">
+              Explora la interfaz completa, los 6 bloques y 45 temas oficiales con 1 test de prueba acotado.
+            </p>
           </div>
         </motion.div>
       </main>

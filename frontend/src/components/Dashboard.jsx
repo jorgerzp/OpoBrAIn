@@ -12,7 +12,8 @@ import {
   Layers,
   Sliders,
   CheckCircle2,
-  X
+  X,
+  ArrowRight
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -26,6 +27,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
 import { useTestStore } from '../store/useTestStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { TopicSelect } from './TopicSelect';
 import { BloqueTemaSelector } from './BloqueTemaSelector';
 import { TestConfigModal } from './TestConfigModal';
@@ -34,6 +36,7 @@ import { statsService } from '../services/statsService';
 
 export const Dashboard = () => {
   const startTest = useTestStore((state) => state.startTest);
+  const { isDemoMode, demoTestsCompleted, logout } = useAuthStore();
 
   // Estadísticas reales del opositor
   const [stats, setStats] = useState(() => statsService.getDashboardSummary());
@@ -50,6 +53,7 @@ export const Dashboard = () => {
   // Modales de flujo
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showFullSelectorModal, setShowFullSelectorModal] = useState(false);
+  const [showDemoLimitModal, setShowDemoLimitModal] = useState(false);
 
   // Sincronizar selección de temas y apartados específicos
   const handleSelectionChange = (newTopics, newEpigrafes) => {
@@ -59,9 +63,20 @@ export const Dashboard = () => {
     }
   };
 
+  // Restricción acotada de Modo Demo: permite explorar la interfaz completa, pero solo 1 test
+  const checkDemoLimit = () => {
+    if (isDemoMode && demoTestsCompleted >= 1) {
+      setShowConfigModal(false);
+      setShowFullSelectorModal(false);
+      setShowDemoLimitModal(true);
+      return true;
+    }
+    return false;
+  };
+
   // Bloquear el scroll de fondo y permitir cerrar con tecla Escape o backdrop
   useEffect(() => {
-    if (showConfigModal || showFullSelectorModal) {
+    if (showConfigModal || showFullSelectorModal || showDemoLimitModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -71,6 +86,7 @@ export const Dashboard = () => {
       if (e.key === 'Escape') {
         setShowConfigModal(false);
         setShowFullSelectorModal(false);
+        setShowDemoLimitModal(false);
       }
     };
 
@@ -79,10 +95,11 @@ export const Dashboard = () => {
       document.body.style.overflow = 'unset';
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [showConfigModal, showFullSelectorModal]);
+  }, [showConfigModal, showFullSelectorModal, showDemoLimitModal]);
 
   // 1. Iniciar batería rápida de 10 preguntas oficiales (sin desplegables)
   const handleStartOficiales = async () => {
+    if (checkDemoLimit()) return;
     try {
       setLoadingMode('oficiales');
       const questions = await api.getTestOficiales();
@@ -105,6 +122,7 @@ export const Dashboard = () => {
     selectedEpigrafeIds: epigrafes,
     modoGeneracion = 'ia'
   }) => {
+    if (checkDemoLimit()) return;
     const idsToUse = topics && topics.length > 0 ? topics : selectedTopicIds;
     const epigrafesToUse = epigrafes && epigrafes.length > 0 ? epigrafes : selectedEpigrafeIds;
 
@@ -176,6 +194,7 @@ export const Dashboard = () => {
 
   // 3. Iniciar generación directa con IA para un tema y sus apartados
   const handleStartAITestDirect = async ({ tema, bloque, epigrafes }) => {
+    if (checkDemoLimit()) return;
     try {
       setLoadingMode('generar-tema');
       setShowFullSelectorModal(false);
@@ -195,6 +214,7 @@ export const Dashboard = () => {
 
   // 4. Iniciar repaso de errores
   const handleStartRepaso = async () => {
+    if (checkDemoLimit()) return;
     try {
       setLoadingMode('repaso');
       const questions = await api.getTestRepaso();
@@ -209,6 +229,48 @@ export const Dashboard = () => {
   return (
     <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-12 space-y-8 sm:space-y-10">
       
+      {/* Banner informativo de Modo Demo */}
+      {isDemoMode && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-3.5 sm:p-4 rounded-3xl bg-[#efe7dc] border border-[#d3c2b1] text-[#3e342b] shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-2xl bg-[#9a897b] text-white flex items-center justify-center shrink-0 shadow-sm">
+              <Sparkles className="w-4 h-4 text-amber-200" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#3e342b] text-white">
+                  Modo Demo
+                </span>
+                <span className="text-xs font-semibold text-[#6f5f52]">
+                  {demoTestsCompleted >= 1 
+                    ? '• Test de prueba consumido (1 de 1)' 
+                    : '• 1 test de prueba disponible'}
+                </span>
+              </div>
+              <p className="text-xs text-[#5e4f43] mt-0.5 leading-snug">
+                {demoTestsCompleted >= 1
+                  ? 'Has finalizado tu test de prueba. Puedes explorar libremente todo el temario e interfaz, o iniciar sesión para acceso ilimitado.'
+                  : 'Puedes explorar toda la plataforma, configurar temas y realizar 1 test de prueba para evaluar OpoBrAIn.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+            <button
+              onClick={logout}
+              className="py-2 px-4 rounded-xl bg-[#3e342b] hover:bg-[#2c241d] active:scale-95 text-white font-semibold text-xs transition cursor-pointer shadow-sm flex items-center gap-1.5"
+            >
+              <span>Iniciar Sesión</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       {/* SECCIÓN HERO (Clavada a la imagen de referencia) */}
       <div className="text-center space-y-5 max-w-3xl mx-auto">
         {/* Pill Badge DISCOVER */}
@@ -538,6 +600,80 @@ export const Dashboard = () => {
                   setShowConfigModal(true);
                 }}
               />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL LÍMITE DE MODO DEMO (1 TEST COMPLETADO) */}
+      <AnimatePresence>
+        {showDemoLimitModal && (
+          <div 
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowDemoLimitModal(false);
+            }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm overflow-hidden"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.16 }}
+              className="w-full max-w-md warm-cream-card rounded-3xl border border-[#d8ccc0] p-6 sm:p-7 shadow-2xl relative text-[#443930] space-y-5 text-center"
+            >
+              <button
+                onClick={() => setShowDemoLimitModal(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-[#ded3c7] text-[#8a796b] hover:text-[#3e342b] transition cursor-pointer"
+                title="Cerrar modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="w-14 h-14 mx-auto rounded-2xl bg-[#9a897b] text-white flex items-center justify-center shadow-md">
+                <Sparkles className="w-7 h-7 text-amber-200" />
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#8a796b]">
+                  Límite de Modo Demo
+                </span>
+                <h3 className="text-xl font-bold text-[#372d25]">
+                  Test de Prueba Completado
+                </h3>
+                <p className="text-xs sm:text-sm text-[#736457] leading-relaxed">
+                  Has realizado tu test de prueba de cortesía. Para continuar entrenando con preguntas ilimitadas, accede con tu cuenta.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-[#ebe3d8] border border-[#d8ccc0] text-left text-xs text-[#635346] space-y-2">
+                <div className="font-semibold text-[#3e342b] flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#487e5b]" />
+                  <span>Con una cuenta en OpoBrAIn obtienes:</span>
+                </div>
+                <ul className="space-y-1 pl-5 list-disc text-[11px] text-[#736457]">
+                  <li>Tests ilimitados de los 6 bloques oficiales y 45 temas</li>
+                  <li>Generación dinámica con Inteligencia Artificial por epígrafes</li>
+                  <li>Batería de fallos personalizada con justificación legislativa</li>
+                  <li>Estadísticas de retención y progreso semanal en tiempo real</li>
+                </ul>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <button
+                  onClick={logout}
+                  className="w-full py-3 px-4 bg-[#3e342b] hover:bg-[#2c241d] active:scale-[0.98] text-white font-semibold rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-md cursor-pointer"
+                >
+                  <span>Iniciar Sesión para Acceso Completo</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={() => setShowDemoLimitModal(false)}
+                  className="w-full py-2.5 px-4 bg-transparent hover:bg-black/5 text-[#8a796b] hover:text-[#3e342b] font-medium rounded-xl text-xs transition cursor-pointer"
+                >
+                  Seguir explorando la interfaz y temario
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

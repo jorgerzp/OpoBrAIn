@@ -5,11 +5,11 @@ import { AmbientGlowCurve } from './components/AmbientGlowCurve';
 import { LoginPage } from './components/LoginPage';
 import { useTestStore } from './store/useTestStore';
 import { useAuthStore } from './store/useAuthStore';
-import { User, LogOut, Shield } from 'lucide-react';
+import { User, LogOut, Shield, Sparkles } from 'lucide-react';
 
 export function App() {
   const { testActive, resetTest } = useTestStore();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, isDemoMode, demoTestsCompleted } = useAuthStore();
 
   // Requisito estricto: El Login es la primera pantalla.
   // Sin hacer login no se puede acceder al dashboard ni a ningún test.
@@ -51,29 +51,51 @@ export function App() {
             Dashboard
           </button>
 
-          {/* Insignia del usuario conectado con estilo píldora de la referencia */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="pill-outline-btn rounded-full px-2.5 sm:px-4 py-0.5 sm:py-1.5 text-xs font-semibold flex items-center gap-1.5 bg-white/10 max-w-[140px] sm:max-w-none truncate">
-              {user.rol === 'admin' ? (
-                <Shield className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-              ) : (
-                <User className="w-3.5 h-3.5 text-white/90 shrink-0" />
-              )}
-              <span className="truncate">{user.username}</span>
-            </span>
+          {/* Si está en Modo Demo, mostramos insignia distintiva y botón de Iniciar Sesión */}
+          {user.isDemo || isDemoMode ? (
+            <div className="flex items-center gap-2">
+              <span className="pill-outline-btn rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1 text-xs font-semibold flex items-center gap-1.5 bg-amber-500/20 text-amber-200 border-amber-400/30">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                <span className="hidden sm:inline">Modo Demo</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-400/25 text-amber-100 font-bold">
+                  {demoTestsCompleted >= 1 ? '0/1' : '1/1 test'}
+                </span>
+              </span>
 
-            {/* Botón Salir / Desconectar */}
-            <button
-              onClick={() => {
-                resetTest();
-                logout();
-              }}
-              className="p-1.5 sm:p-2 rounded-full hover:bg-white/15 active:bg-white/25 text-white/80 hover:text-white transition flex items-center justify-center"
-              title="Cerrar sesión"
-            >
-              <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </button>
-          </div>
+              <button
+                onClick={() => {
+                  resetTest();
+                  logout();
+                }}
+                className="text-xs px-3 sm:px-4 py-1 sm:py-1.5 bg-white text-[#3e342b] font-semibold rounded-full hover:bg-white/90 active:scale-95 transition shadow-sm cursor-pointer whitespace-nowrap"
+              >
+                Iniciar Sesión
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="pill-outline-btn rounded-full px-2.5 sm:px-4 py-0.5 sm:py-1.5 text-xs font-semibold flex items-center gap-1.5 bg-white/10 max-w-[140px] sm:max-w-none truncate">
+                {user.rol === 'admin' ? (
+                  <Shield className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                ) : (
+                  <User className="w-3.5 h-3.5 text-white/90 shrink-0" />
+                )}
+                <span className="truncate">{user.username}</span>
+              </span>
+
+              {/* Botón Salir / Desconectar */}
+              <button
+                onClick={() => {
+                  resetTest();
+                  logout();
+                }}
+                className="p-1.5 sm:p-2 rounded-full hover:bg-white/15 active:bg-white/25 text-white/80 hover:text-white transition flex items-center justify-center"
+                title="Cerrar sesión"
+              >
+                <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </button>
+            </div>
+          )}
         </nav>
       </header>
 
